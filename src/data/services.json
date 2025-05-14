@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "name": "Raj Plumber Services",
+    "rating": 4.8,
+    "location": "Pune",
+    "price": "₹300",
+    "image": "https://source.unsplash.com/100x100/?plumber"
+  },
+  {
+    "id": 2,
+    "name": "QuickFix Plumbing",
+    "rating": 4.6,
+    "location": "Pimpri",
+    "price": "₹350",
+    "image": "https://source.unsplash.com/100x100/?plumber,tools"
+  },
+  {
+    "id": 3,
+    "name": "PipeCare Experts",
+    "rating": 4.9,
+    "location": "Hinjewadi",
+    "price": "₹400",
+    "image": "https://source.unsplash.com/100x100/?repair,tools"
+  }
+]
