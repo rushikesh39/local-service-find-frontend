@@ -4,7 +4,7 @@ import { Routes, Route } from "react-router-dom";
 import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Signup from "../pages/Signup";
-import Booking from "../Pages/Booking";
+import Booking from "../pages/Booking";
 import PrivateRoute from "../components/PrivateRoutes";
 import ServiceList from "../pages/ServiceList";
 import MyBookings from "../pages/MyBookings";
@@ -34,16 +34,7 @@ const AppRoutes = () => {
       <Route path="/book/:serviceId" element={<BookingModal />} />
 
       <Route path="/my-bookings" element={<MyBookings />} />
-      <Route
-        path="/booking"
-        element={
-          <PrivateRoute>
-            <Booking />
-          </PrivateRoute>
-        }
-      />
       <Route path="/social-auth-success" element={<SocialAuthSuccess />} />
-
       <Route
         path="/provider"
         element={
