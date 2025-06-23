@@ -51,12 +51,12 @@ const Login = () => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:8000/api/auth/google";
+    window.location.href = `${process.env.VITE_API_BASE_URL}/api/auth/google`;
    
   };
 
   const handleFacebookLogin = () => {
-    window.location.href = "http://localhost:8000/api/auth/facebook";
+    window.location.href = `${process.env.VITE_API_BASE_URL}/api/auth/facebook`;
   };
 
   return (
