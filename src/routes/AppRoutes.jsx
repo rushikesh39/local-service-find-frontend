@@ -34,7 +34,7 @@ const AppRoutes = () => {
       <Route path="/book/:serviceId" element={<BookingModal />} />
 
       <Route path="/my-bookings" element={<MyBookings />} />
-      <Route path="/social-auth-success" element={<SocialAuthSuccess />} />
+      <Route path="/api/social-auth-success" element={<SocialAuthSuccess />} />
       <Route
         path="/provider"
         element={
