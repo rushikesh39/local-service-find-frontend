@@ -15,11 +15,11 @@ const SocialAuthSuccess = () => {
     const token = params.get("token");
     const name = params.get("name");
     const email = params.get("email");
-    console.log("data",token,name,email)
+    const role = params.get("role");
+    console.log("data",token,name,email,role)
 
     if (token && email) {
-      dispatch(loginUser({ name, email,token }));
-
+      dispatch(loginUser({ name, email,token,role }));
       navigate("/services");
     } else {
       navigate("/login");
