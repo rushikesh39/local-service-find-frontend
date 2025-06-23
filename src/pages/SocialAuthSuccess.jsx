@@ -11,7 +11,7 @@ const SocialAuthSuccess = () => {
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    
+    console.log("params",params)
     const token = params.get("token");
     const name = params.get("name");
     const email = params.get("email");
