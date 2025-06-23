@@ -52,12 +52,12 @@ const Login = () => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = `${baseURL}}/api/auth/google`;
+    window.location.href = `${baseURL}/auth/google`;
    
   };
 
   const handleFacebookLogin = () => {
-    window.location.href = `${baseURL}/api/auth/facebook`;
+    window.location.href = `${baseURL}/auth/facebook`;
   };
 
   return (
