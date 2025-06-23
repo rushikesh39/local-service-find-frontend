@@ -5,13 +5,14 @@ import authReducer from "./authSlice";
 import Booking from "../Pages/Booking";
 import bookingReducer from "./bookingSlice";
 import userReducer from '../redux/userSlice'
-
+import servicesReducer from '../redux/servicesSlice'
 
 const store = configureStore({
   reducer: {
     auth: authReducer,
     booking:bookingReducer,
-    user:userReducer
+    user:userReducer,
+    services:servicesReducer,
   },
 });
 

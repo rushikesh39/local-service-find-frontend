@@ -2,6 +2,9 @@ import { useDispatch } from "react-redux";
 import { loginUser } from "../redux/userSlice";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { login } from "../api/auth";
+import {jwtDecode} from "jwt-decode";
+
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -30,35 +33,42 @@ const Login = () => {
     return true;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    dispatch(
-      loginUser({
-        name: form.email.split("@")[0],
-        email: form.email,
-      })
-    );
-
-    localStorage.setItem("isLoggedIn", "true");
-    navigate("/services");
+    try {
+      const data = await login(form); // { token: "..." }
+      console.log(data);
+      if (data) {
+         const decoded = jwtDecode(data.token)
+        dispatch(loginUser({ name:decoded.name, email: decoded.email,role:decoded.role,token:data.token }));
+        navigate("/services");
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "Login failed.");
+    }
   };
 
   const handleGoogleLogin = () => {
-    alert("Google login clicked");
+    window.location.href = "http://localhost:8000/api/auth/google";
+   
   };
 
   const handleFacebookLogin = () => {
-    alert("Facebook login clicked");
+    window.location.href = "http://localhost:8000/api/auth/facebook";
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Login</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
+          Login
+        </h2>
 
-        {error && <p className="text-red-500 text-sm mb-4 text-center">{error}</p>}
+        {error && (
+          <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
@@ -88,7 +98,10 @@ const Login = () => {
           </div>
 
           <div className="text-right text-sm">
-            <Link to="/forgot-password" className="text-blue-600 hover:underline">
+            <Link
+              to="/forgot-password"
+              className="text-blue-600 hover:underline"
+            >
               Forgot Password?
             </Link>
           </div>
@@ -101,7 +114,6 @@ const Login = () => {
           </button>
         </form>
 
-        {/* Social Logins */}
         <div className="mt-6 space-y-3">
           <button
             onClick={handleGoogleLogin}

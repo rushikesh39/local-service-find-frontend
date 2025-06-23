@@ -9,25 +9,56 @@ import PrivateRoute from "../components/PrivateRoutes";
 import ServiceList from "../pages/ServiceList";
 import MyBookings from "../pages/MyBookings";
 import VerifyOtp from "../pages/VerifyOtp";
-
-
+import SocialAuthSuccess from "../pages/SocialAuthSuccess";
+import ProviderDashboard from "../components/provider/ProviderDashboard";
+import DashboardLayout from "../components/provider/DashboardLayout";
+import Services from "../components/provider/Services";
+import ProviderNotFound from "../components/provider/ProviderNotFound";
+import AddNewService from "../components/provider/AddNewService";
+import UpdateServiceForm from "../components/provider/UpdateService";
+import ProviderBookings from "../components/provider/ProviderBookings"
+import BookingModal from "../pages/BookingModal";
+import ForgotPassword from "../pages/ForgotPassword";
+import ResetPassword from "../pages/ResetPassword";
 
 const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/verify-otp" element={<VerifyOtp />} />
       <Route path="/services" element={<ServiceList />} />
+      <Route path="/book/:serviceId" element={<BookingModal />} />
+
       <Route path="/my-bookings" element={<MyBookings />} />
-      <Route path="/booking"
+      <Route
+        path="/booking"
         element={
           <PrivateRoute>
             <Booking />
           </PrivateRoute>
         }
       />
+      <Route path="/social-auth-success" element={<SocialAuthSuccess />} />
+
+      <Route
+        path="/provider"
+        element={
+          <PrivateRoute>
+            <DashboardLayout />
+          </PrivateRoute>
+        }
+      >
+        <Route index element={<ProviderDashboard />} />
+        <Route path="services" element={<Services />} />
+        <Route path="services/add-new-service" element={<AddNewService />} />
+        <Route path="services/update/:id" element={<UpdateServiceForm />} />
+        <Route path="bookings" element={<ProviderBookings />} />
+        <Route path="*" element={<ProviderNotFound />} />
+      </Route>
     </Routes>
   );
 };

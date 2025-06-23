@@ -1,60 +1,168 @@
-// src/components/Navbar.jsx
-
-import { useState } from "react";
-import { NavLink } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useState, useEffect, useRef } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { logoutUser } from "../redux/userSlice";
+import {
+  CalendarDays,
+  UserCircle,
+  LogOut,
+  Wrench,
+  PlusCircle,
+  ClipboardList,
+} from "lucide-react";
 
 const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const user = useSelector((state) => state.user.user); // assuming user slice
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
-  const renderUserAvatar = () => {
-    if (!user || !user.name) return null;
-    const initial = user.name.charAt(0).toUpperCase();
-    return (
-      <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">
-        {initial}
-      </div>
-    );
+  const user = useSelector((state) => state.user.user);
+  console.log("user",user)
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleLogout = () => {
+    dispatch(logoutUser());
+    setIsDropdownOpen(false);
+    navigate("/login");
   };
 
-  return (
-    <nav className="bg-white shadow-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          {/* Logo */}
-          <div className="flex items-center">
-            <NavLink to="/" className="text-2xl font-bold text-blue-600">
-              ServiceFinder
-            </NavLink>
-          </div>
+  const handleNavigate = (path) => {
+    setIsDropdownOpen(false);
+    setIsMobileMenuOpen(false);
+    navigate(path);
+  };
 
-          {/* Menu Button for Mobile */}
-          <div className="flex items-center md:hidden">
+  const avatarInitial = user?.name ? user.name.charAt(0).toUpperCase() : "";
+
+  return (
+    <nav className="bg-white shadow-md z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16 items-center">
+          <NavLink to="/" className="text-2xl font-bold text-blue-600">
+            ServiceFinder
+          </NavLink>
+
+          <div className="md:hidden">
             <button
-              onClick={() => setIsOpen(!isOpen)}
-              type="button"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="text-gray-800 hover:text-blue-600 focus:outline-none"
+              aria-label="Toggle menu"
             >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                {isOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                {isMobileMenuOpen ? (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
                 )}
               </svg>
             </button>
           </div>
 
-          {/* NavLinks Desktop */}
           <div className="hidden md:flex md:items-center md:space-x-6">
-            <NavLink to="/" className="text-gray-700 hover:text-blue-600">Home</NavLink>
-            <NavLink to="/services" className="text-gray-700 hover:text-blue-600">Services</NavLink>
-            <NavLink to="/providers" className="text-gray-700 hover:text-blue-600">Providers</NavLink>
-            <NavLink to="/about" className="text-gray-700 hover:text-blue-600">About</NavLink>
+            <NavLink to="/" className="text-gray-700 hover:text-blue-600">
+              Home
+            </NavLink>
+            <NavLink to="/services" className="text-gray-700 hover:text-blue-600">
+              Services
+            </NavLink>
+            {user?.role === "provider" && (
+              <NavLink to="/provider" className="text-gray-700 hover:text-blue-600">
+                Dashboard
+              </NavLink>
+            )}
+            <NavLink to="/about" className="text-gray-700 hover:text-blue-600">
+              About
+            </NavLink>
 
             {user ? (
-              renderUserAvatar()
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold focus:outline-none"
+                >
+                  {avatarInitial}
+                </button>
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-200">
+                    <button
+                      onClick={() => handleNavigate("/my-bookings")}
+                      className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100"
+                    >
+                      <CalendarDays className="w-4 h-4 mr-2 text-blue-600" />
+                      My Bookings
+                    </button>
+                    <button
+                      onClick={() => handleNavigate("/profile")}
+                      className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100"
+                    >
+                      <UserCircle className="w-4 h-4 mr-2 text-gray-700" />
+                      My Info
+                    </button>
+
+                    {user?.role === "provider" && (
+                      <>
+                        <div className="border-t my-2 border-gray-100" />
+                        <button
+                          onClick={() => handleNavigate("/provider")}
+                          className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100"
+                        >
+                          <Wrench className="w-4 h-4 mr-2 text-orange-600" />
+                          Dashboard
+                        </button>
+                        <button
+                          onClick={() => handleNavigate("/add-service")}
+                          className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100"
+                        >
+                          <PlusCircle className="w-4 h-4 mr-2 text-green-600" />
+                          Add Service
+                        </button>
+                        <button
+                          onClick={() => handleNavigate("/my-services")}
+                          className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100"
+                        >
+                          <ClipboardList className="w-4 h-4 mr-2 text-indigo-600" />
+                          My Services
+                        </button>
+                      </>
+                    )}
+
+                    <div className="border-t my-2 border-gray-100" />
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center w-full px-4 py-2 text-red-600 hover:bg-red-50"
+                    >
+                      <LogOut className="w-4 h-4 mr-2 text-red-600" />
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
             ) : (
               <NavLink
                 to="/login"
@@ -68,30 +176,77 @@ const Navbar = () => {
       </div>
 
       {/* Mobile Menu */}
-      <div
-        className={`md:hidden transition-all duration-300 ease-in-out overflow-hidden ${
-          isOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
-        }`}
-        style={{ height: isOpen ? "auto" : "0" }}
-      >
-        <div className="px-4 pb-4">
-          <NavLink to="/" className="block py-2 text-gray-700 hover:text-blue-600">Home</NavLink>
-          <NavLink to="/services" className="block py-2 text-gray-700 hover:text-blue-600">Services</NavLink>
-          <NavLink to="/providers" className="block py-2 text-gray-700 hover:text-blue-600">Providers</NavLink>
-          <NavLink to="/about" className="block py-2 text-gray-700 hover:text-blue-600">About</NavLink>
-
-          {user ? (
-            <div className="mt-4">{renderUserAvatar()}</div>
-          ) : (
-            <NavLink
-              to="/login"
-              className="block mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-            >
-              Login
+      {isMobileMenuOpen && (
+        <div className="md:hidden px-4 pb-4 space-y-2 bg-white shadow-inner">
+          <NavLink to="/" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-gray-700 hover:text-blue-600">
+            Home
+          </NavLink>
+          <NavLink to="/services" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-gray-700 hover:text-blue-600">
+            Services
+          </NavLink>
+          {user?.role === "provider" && (
+            <NavLink to="/provider" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-gray-700 hover:text-blue-600">
+              Dashboard
             </NavLink>
           )}
+          <NavLink to="/about" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-gray-700 hover:text-blue-600">
+            About
+          </NavLink>
+
+          {user && (
+            <div className="mt-4 border-t border-gray-200 pt-4">
+              <button
+                onClick={() => handleNavigate("/my-bookings")}
+                className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100"
+              >
+                <CalendarDays className="w-5 h-5 mr-2 text-blue-600" />
+                My Bookings
+              </button>
+              <button
+                onClick={() => handleNavigate("/profile")}
+                className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100"
+              >
+                <UserCircle className="w-5 h-5 mr-2 text-gray-700" />
+                My Info
+              </button>
+
+              {user?.role === "provider" && (
+                <>
+                  <button
+                    onClick={() => handleNavigate("/provider")}
+                    className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  >
+                    <Wrench className="w-5 h-5 mr-2 text-orange-600" />
+                    Dashboard
+                  </button>
+                  <button
+                    onClick={() => handleNavigate("/add-service")}
+                    className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  >
+                    <PlusCircle className="w-5 h-5 mr-2 text-green-600" />
+                    Add Service
+                  </button>
+                  <button
+                    onClick={() => handleNavigate("/my-services")}
+                    className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  >
+                    <ClipboardList className="w-5 h-5 mr-2 text-indigo-600" />
+                    My Services
+                  </button>
+                </>
+              )}
+
+              <button
+                onClick={handleLogout}
+                className="flex items-center w-full px-4 py-2 text-red-600 hover:bg-red-50"
+              >
+                <LogOut className="w-5 h-5 mr-2 text-red-600" />
+                Logout
+              </button>
+            </div>
+          )}
         </div>
-      </div>
+      )}
     </nav>
   );
 };

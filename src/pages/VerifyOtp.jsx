@@ -1,7 +1,8 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { loginUser } from "../redux/userSlice"; // adjust path if needed
+import { loginUser } from "../redux/userSlice";
+import { verifyOtp } from "../api/auth"; // Adjust path
 
 const VerifyOtp = () => {
   const { state } = useLocation();
@@ -10,22 +11,22 @@ const VerifyOtp = () => {
   const [enteredOtp, setEnteredOtp] = useState("");
   const [error, setError] = useState("");
 
-  const { form, otp } = state || {};
+  const { data } = state;
 
-  if (!form || !otp) {
+  if (!data) {
     return <div className="text-center mt-10 text-red-600">Invalid OTP session. Go back to Sign Up.</div>;
   }
 
-  const handleVerify = (e) => {
+  const handleVerify = async (e) => {
     e.preventDefault();
-    if (enteredOtp === otp) {
-      console.log("OTP Verified. Final Sign Up:", form);
-      dispatch(loginUser(form));
-      // Here you would send data to backend to create user
-
-      navigate("/services"); // Move to services page
-    } else {
-      setError("Incorrect OTP. Please try again.");
+    try {
+      const res = await verifyOtp(data.user.email, enteredOtp);
+       localStorage.setItem("token", data.token);
+      // OTP matched, user verified
+       dispatch(loginUser({ name:data.user.name, email:data.user.name,role:data.user.role,token:data.token }));
+      navigate("/services");
+    } catch (err) {
+      setError(err.response?.data?.message || "OTP verification failed.");
     }
   };
 

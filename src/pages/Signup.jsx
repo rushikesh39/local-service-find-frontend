@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { registerUser, sendOtp } from "../api/auth"; // ✅ import API
 
 const Signup = () => {
   const [form, setForm] = useState({
     name: "",
-    contact: "",
+    email: "",
     password: "",
     role: "user",
   });
@@ -14,27 +15,27 @@ const Signup = () => {
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
-  const validateContact = () => {
+  const validateEmail = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const mobileRegex = /^[6-9]\d{9}$/;
-    return emailRegex.test(form.contact) || mobileRegex.test(form.contact);
+    return emailRegex.test(form.email) || mobileRegex.test(form.email);
   };
 
   const validatePassword = () => {
-    // At least 6 characters, includes one letter and one number/special character
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*[\d\W]).{6,}$/;
     return passwordRegex.test(form.password);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
-    if (!form.name || !form.contact || !form.password) {
+    if (!form.name || !form.email || !form.password) {
       return setError("All fields are required.");
     }
 
-    if (!validateContact()) {
-      return setError("Enter valid email or 10-digit mobile number.");
+    if (!validateEmail()) {
+      return setError("Enter valid email.");
     }
 
     if (!validatePassword()) {
@@ -43,10 +44,17 @@ const Signup = () => {
       );
     }
 
-    const fakeOtp = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log("Generated OTP:", fakeOtp);
-
-    navigate("/verify-otp", { state: { form, otp: fakeOtp } });
+    try {
+      const data = await registerUser(form); // ✅ Send data to backend
+      if (data) {
+        const otp = await sendOtp(form.email);
+        navigate("/verify-otp", {
+          state: { data },
+        });
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "Registration failed.");
+    }
   };
 
   return (
@@ -70,9 +78,9 @@ const Signup = () => {
         />
         <input
           type="text"
-          name="contact"
+          name="email"
           placeholder="Email or Mobile"
-          value={form.contact}
+          value={form.email}
           onChange={handleChange}
           className="w-full mb-4 p-3 border rounded"
           required

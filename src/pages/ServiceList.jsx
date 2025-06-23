@@ -1,21 +1,33 @@
-import { useParams,useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { use, useState } from "react";
-import { useDispatch } from "react-redux";
-import { addBooking } from "../redux/bookingSlice";
-import dummyServices from "../data/services.json";
+import { useParams, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { useState, useEffect } from "react";
 import ServiceCard from "./ServiceCard";
-import BookingModal from "./BookingModal";
+import { servicesList } from "../api/auth"; // API to get all services
+import { setServices } from "../redux/servicesSlice";
 
 const ServicesList = () => {
-  const dispatch = useDispatch();
   const { category } = useParams();
   const navigate = useNavigate();
-  const [selectedService, setSelectedService] = useState(null);
-  const [formData, setFormData] = useState({ name: "", date: "", time: "", notes: "" });
-  // const [isLoggedIn, setIsLoggedIn] = useState(true); // State to check login status
-  const user = useSelector((state) => state.user.user); 
-  console.log(user)
+  const user = useSelector((state) => state.user.user);
+  const dispatch=useDispatch()
+
+  // const [services, setServices] = useState([]);
+ const services = useSelector((state) => state.services.services);
+ console.log(services)
+  const fetchServices = async () => {
+    try {
+      const res = await servicesList(); 
+        // setServices(res.services);
+        dispatch(setServices(res.services))
+      
+    } catch (error) {
+      console.error("Error fetching services:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchServices();
+  }, [category]);
 
   const handleBookNow = (service) => {
     if (!user) {
@@ -23,28 +35,8 @@ const ServicesList = () => {
       navigate("/login");
       return;
     }
-    setSelectedService(service);
-  };
 
-  const handleClose = () => {
-    setSelectedService(null);
-    setFormData({ name: "", date: "", time: "", notes: "" });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const bookingDetails = {
-      ...formData,
-      service: selectedService.name,
-      timestamp: new Date().toISOString(),
-    };
-    dispatch(addBooking(bookingDetails));
-    alert(`Booking confirmed for ${selectedService.name}`);
-    handleClose();
-  };
-
-  const toggleLogin = () => {
-    setIsLoggedIn((prev) => !prev); // Toggle login state for testing purposes
+    navigate(`/book/${service._id}`);
   };
 
   return (
@@ -52,21 +44,21 @@ const ServicesList = () => {
       <h1 className="text-3xl font-bold mb-6 text-center capitalize">
         {category} Services
       </h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-        {dummyServices.map((service) => (
-          <ServiceCard key={service.id} service={service} onBookNow={handleBookNow} />
-        ))}
-      </div>
 
-      {/* Booking Modal */}
-      {selectedService && (
-        <BookingModal
-          selectedService={selectedService}
-          formData={formData}
-          setFormData={setFormData}
-          handleSubmit={handleSubmit}
-          handleClose={handleClose}
-        />
+      {services.length === 0 ? (
+        <p className="text-center text-gray-500">
+          No services available for this category.
+        </p>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          {services.map((service) => (
+            <ServiceCard
+              key={service._id}
+              service={service}
+              onBookNow={handleBookNow}
+            />
+          ))}
+        </div>
       )}
     </div>
   );
