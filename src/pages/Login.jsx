@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { login } from "../api/auth";
 import {jwtDecode} from "jwt-decode";
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 
 const Login = () => {
@@ -51,12 +52,12 @@ const Login = () => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = `${process.env.VITE_API_BASE_URL}/api/auth/google`;
+    window.location.href = `${baseURL}}/api/auth/google`;
    
   };
 
   const handleFacebookLogin = () => {
-    window.location.href = `${process.env.VITE_API_BASE_URL}/api/auth/facebook`;
+    window.location.href = `${baseURL}/api/auth/facebook`;
   };
 
   return (
