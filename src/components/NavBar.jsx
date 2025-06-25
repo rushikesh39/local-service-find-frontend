@@ -96,8 +96,11 @@ const Navbar = () => {
                 Dashboard
               </NavLink>
             )}
-            <NavLink to="/about" className="text-gray-700 hover:text-blue-600">
-              About
+            <NavLink to="/about-us" className="text-gray-700 hover:text-blue-600">
+              About US
+            </NavLink>
+            <NavLink to="/contact-us" className="text-gray-700 hover:text-blue-600">
+              contact Us
             </NavLink>
 
             {user ? (
