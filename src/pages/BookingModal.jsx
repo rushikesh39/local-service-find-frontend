@@ -27,14 +27,7 @@ const BookingPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log({
-        serviceId,
-        name: formData.name,
-        mobile: formData.mobile,
-        scheduledDate: `${formData.date}T${formData.time}`,
-        address: formData.address,
-        notes: formData.notes,
-      }, 'booking')
+    console.log(serviceId, formData, 'booking')
     try {
       await createBooking({
         serviceId,
