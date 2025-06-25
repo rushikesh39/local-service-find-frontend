@@ -11,12 +11,11 @@ const SocialAuthSuccess = () => {
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    console.log("params",params.getAll)
     const token = params.get("token");
+    localStorage.setItem("token", token);
     const name = params.get("name");
     const email = params.get("email");
     const role = params.get("role");
-    // console.log("data",token,name,email,role)
 
     if (token && email) {
       dispatch(loginUser({ name, email,token,role }));

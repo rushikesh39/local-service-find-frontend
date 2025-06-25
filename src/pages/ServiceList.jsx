@@ -11,13 +11,11 @@ const ServicesList = () => {
   const user = useSelector((state) => state.user.user);
   const dispatch=useDispatch()
 
-  // const [services, setServices] = useState([]);
  const services = useSelector((state) => state.services.services);
- console.log(services)
+ console.log("services",services)
   const fetchServices = async () => {
     try {
       const res = await servicesList(); 
-        // setServices(res.services);
         dispatch(setServices(res.services))
       
     } catch (error) {
