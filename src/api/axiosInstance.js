@@ -8,7 +8,7 @@ const axiosInstance = axios.create({
   headers: {
     Authorization: `Bearer ${token}`,
   },
-  timeout: 1000,
+  timeout: 10000,
 });
 
 export default axiosInstance;
