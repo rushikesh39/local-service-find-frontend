@@ -12,21 +12,25 @@ const SocialAuthSuccess = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const token = params.get("token");
-    localStorage.setItem("token", token);
     const name = params.get("name");
     const email = params.get("email");
     const role = params.get("role");
-    console.log("data",token,name,email,role)
+    // console.log("data",token,name,email,role)
 
     if (token && email) {
-      dispatch(loginUser({ name, email,token,role }));
+      dispatch(loginUser({ name, email, token, role }));
+      localStorage.setItem("token", token);
       navigate("/services");
     } else {
       navigate("/login");
     }
   }, [location, dispatch, navigate]);
 
-  return <div className="text-center mt-10">Logging you in via social account...</div>;
+  return (
+    <div className="text-center mt-10">
+      Logging you in via social account...
+    </div>
+  );
 };
 
 export default SocialAuthSuccess;
