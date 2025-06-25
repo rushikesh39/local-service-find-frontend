@@ -16,6 +16,7 @@ const SocialAuthSuccess = () => {
     const name = params.get("name");
     const email = params.get("email");
     const role = params.get("role");
+    console.log("data",token,name,email,role)
 
     if (token && email) {
       dispatch(loginUser({ name, email,token,role }));
