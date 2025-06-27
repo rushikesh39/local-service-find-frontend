@@ -3,9 +3,9 @@ import { loginUser } from "../redux/userSlice";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { login } from "../api/auth";
-import {jwtDecode} from "jwt-decode";
-const baseURL = import.meta.env.VITE_API_BASE_URL;
+import { jwtDecode } from "jwt-decode";
 
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -13,6 +13,7 @@ const Login = () => {
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // Added loading state
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -38,22 +39,23 @@ const Login = () => {
     e.preventDefault();
     if (!validateForm()) return;
 
+    setLoading(true); // Disable the button
     try {
-      const data = await login(form); // { token: "..." }
-      console.log(data);
+      const data = await login(form);
       if (data) {
-         const decoded = jwtDecode(data.token)
-        dispatch(loginUser({ name:decoded.name, email: decoded.email,role:decoded.role,token:data.token }));
+        const decoded = jwtDecode(data.token);
+        dispatch(loginUser({ name: decoded.name, email: decoded.email, role: decoded.role, token: data.token }));
         navigate("/services");
       }
     } catch (err) {
       setError(err.response?.data?.message || "Login failed.");
+    } finally {
+      setLoading(false); // Re-enable the button
     }
   };
 
   const handleGoogleLogin = () => {
     window.location.href = `${baseURL}/auth/google`;
-   
   };
 
   const handleFacebookLogin = () => {
@@ -109,9 +111,10 @@ const Login = () => {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+            className="w-full bg-blue-600 text-white py-2 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700"
+            disabled={loading}
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 

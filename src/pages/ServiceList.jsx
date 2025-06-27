@@ -1,3 +1,4 @@
+import { HashLoader } from "react-spinners";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useState, useEffect } from "react";
@@ -6,20 +7,24 @@ import { servicesList } from "../api/auth"; // API to get all services
 import { setServices } from "../redux/servicesSlice";
 
 const ServicesList = () => {
+  const [loading, setLoading] = useState(true);
+
   const { category } = useParams();
   const navigate = useNavigate();
   const user = useSelector((state) => state.user.user);
-  const dispatch=useDispatch()
+  const dispatch = useDispatch();
 
- const services = useSelector((state) => state.services.services);
- console.log("services",services)
+  const services = useSelector((state) => state.services.services);
+  console.log("services", services);
   const fetchServices = async () => {
     try {
-      const res = await servicesList(); 
-        dispatch(setServices(res.services))
-      
+      setLoading(true);
+      const res = await servicesList();
+      dispatch(setServices(res.services));
     } catch (error) {
       console.error("Error fetching services:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -43,21 +48,25 @@ const ServicesList = () => {
         {category} Services
       </h1>
 
-      {services.length === 0 ? (
-        <p className="text-center text-gray-500">
-          No services available for this category.
-        </p>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {services.map((service) => (
-            <ServiceCard
-              key={service._id}
-              service={service}
-              onBookNow={handleBookNow}
-            />
-          ))}
-        </div>
-      )}
+      {loading ? (
+      <div className="flex justify-center items-center min-h-[50vh]">
+        <HashLoader color="#155dfc"  size={60} />
+      </div>
+    ) : services.length === 0 ? (
+      <p className="text-center text-gray-500">
+        No services available for this category.
+      </p>
+    ) : (
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+        {services.map((service) => (
+          <ServiceCard
+            key={service._id}
+            service={service}
+            onBookNow={handleBookNow}
+          />
+        ))}
+      </div>
+    )}
     </div>
   );
 };

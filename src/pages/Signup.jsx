@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { registerUser, sendOtp } from "../api/auth"; // ✅ import API
+import { registerUser, sendOtp } from "../api/auth";
 
 const Signup = () => {
   const [form, setForm] = useState({
@@ -10,6 +10,7 @@ const Signup = () => {
     role: "user",
   });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // ✅ Loading state
   const navigate = useNavigate();
 
   const handleChange = (e) =>
@@ -44,16 +45,20 @@ const Signup = () => {
       );
     }
 
+    setLoading(true); // ✅ Disable the button
+
     try {
-      const data = await registerUser(form); // ✅ Send data to backend
+      const data = await registerUser(form);
       if (data) {
-        const otp = await sendOtp(form.email);
+        await sendOtp(form.email);
         navigate("/verify-otp", {
           state: { data },
         });
       }
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed.");
+    } finally {
+      setLoading(false); // ✅ Enable again if you want to retry
     }
   };
 
@@ -107,9 +112,10 @@ const Signup = () => {
 
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-3 rounded hover:bg-blue-700"
+          className="w-full bg-blue-600 text-white py-3 rounded hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={loading}
         >
-          Send OTP
+          {loading ? "Sending OTP..." : "Send OTP"}
         </button>
 
         <p className="mt-6 text-center text-gray-600">
