@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { getServices, deleteServices } from "../../api/auth";
 import { useSelector } from "react-redux";
+import SyncLoader from "react-spinners/SyncLoader"; // ✅ Import SyncLoader
 
 const Services = () => {
-  const navigate = useNavigate;
+  const navigate = useNavigate();
   const providerId = useSelector((state) => state.user.user?.id);
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,7 +29,6 @@ const Services = () => {
     if (!window.confirm("Are you sure you want to delete this service?"))
       return;
     try {
-      console.log("Deleting service ID:", id);
       await deleteServices(id);
       setServices((prev) => prev.filter((service) => service._id !== id));
       alert("Service deleted successfully.");
@@ -39,7 +39,7 @@ const Services = () => {
   };
 
   return (
-    <div className="p-4">
+    <div className="p-4 min-h-[70vh] bg-gray-50">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-semibold">My Services</h2>
         <NavLink
@@ -51,7 +51,9 @@ const Services = () => {
       </div>
 
       {loading ? (
-        <p>Loading services...</p>
+        <div className="flex justify-center items-center h-64">
+          <SyncLoader color="#2563eb" size={15} />
+        </div>
       ) : services.length > 0 ? (
         <div className="overflow-x-auto bg-white shadow rounded-2xl">
           <table className="min-w-full text-sm text-left">

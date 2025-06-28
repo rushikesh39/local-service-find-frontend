@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { addNewServices } from "../../api/auth";
+import Swal from "sweetalert2";
 
 const serviceOptions = [
   { value: "AC Repair", label: "AC Repair" },
@@ -64,7 +65,6 @@ const AddServiceForm = () => {
     };
   }, [previewImage]);
 
-  // Filter service options based on search term
   const filteredOptions = serviceOptions.filter((option) =>
     option.label.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -73,22 +73,10 @@ const AddServiceForm = () => {
     const { name, value, files } = e.target;
 
     if (name === "image") {
-      const file = files && files[0];
-
-      if (!file) {
-        setError("Please select an image.");
-        return;
-      }
-
-      if (!file.type.startsWith("image/")) {
-        setError("Selected file must be an image.");
-        return;
-      }
-
-      if (file.size > 2 * 1024 * 1024) {
-        setError("Image size must be less than 2MB.");
-        return;
-      }
+      const file = files?.[0];
+      if (!file) return setError("Please select an image.");
+      if (!file.type.startsWith("image/")) return setError("File must be an image.");
+      if (file.size > 2 * 1024 * 1024) return setError("Image must be less than 2MB.");
 
       if (previewImage) URL.revokeObjectURL(previewImage);
       setPreviewImage(URL.createObjectURL(file));
@@ -96,13 +84,12 @@ const AddServiceForm = () => {
       setError("");
     } else if (name === "type") {
       setFormData((prev) => ({ ...prev, type: value }));
-      setSearchTerm(""); // reset search on selection
-      if (error) setError("");
+      setSearchTerm("");
     } else if (name === "serviceSearch") {
       setSearchTerm(value);
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
-      if (error) setError("");
+      setError("");
     }
   };
 
@@ -119,12 +106,8 @@ const AddServiceForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const validationError = validateInputs();
-    if (validationError) {
-      setError(validationError);
-      return;
-    }
+    if (validationError) return setError(validationError);
 
     setError("");
     setLoading(true);
@@ -132,24 +115,33 @@ const AddServiceForm = () => {
     try {
       const serviceData = new FormData();
       serviceData.append("name", formData.name.trim());
-      serviceData.append("category", formData.type.trim()); // Backend expects 'category'
+      serviceData.append("category", formData.type.trim());
       serviceData.append("location", formData.location.trim());
       serviceData.append("description", formData.description.trim());
       serviceData.append("price", formData.price);
       serviceData.append("image", formData.image);
 
-      console.log("Sending data:", Object.fromEntries(serviceData.entries()));
-
       await addNewServices(serviceData);
 
-      alert("Service added successfully!");
-      navigate("/provider/services");
+      Swal.fire({
+        title: "Success!",
+        text: "Service added successfully.",
+        icon: "success",
+        confirmButtonText: "Go to My Services",
+      }).then(() => {
+        navigate("/provider/services");
+      });
     } catch (err) {
       const msg =
         err.response?.data?.error ||
         err.message ||
         "Something went wrong while adding the service.";
-      setError(msg);
+      Swal.fire({
+        title: "Error",
+        text: msg,
+        icon: "error",
+        confirmButtonText: "OK",
+      });
     } finally {
       setLoading(false);
     }
@@ -160,23 +152,19 @@ const AddServiceForm = () => {
       onSubmit={handleSubmit}
       className="bg-white shadow rounded-2xl p-6 w-full max-w-2xl mx-auto"
       noValidate
-      aria-live="polite"
     >
       <h2 className="text-2xl font-semibold mb-4">Add New Service</h2>
 
       {error && (
-        <div className="mb-4 text-red-600 text-sm" role="alert" aria-atomic="true">
+        <div className="mb-4 text-red-600 text-sm" role="alert">
           {error}
         </div>
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium mb-1">
-            Service Name
-          </label>
+          <label className="block text-sm font-medium mb-1">Service Name</label>
           <input
-            id="name"
             type="text"
             name="name"
             value={formData.name}
@@ -184,33 +172,25 @@ const AddServiceForm = () => {
             placeholder="e.g. AC Repair"
             className="w-full border border-gray-300 rounded-md p-2"
             required
-            aria-required="true"
           />
         </div>
 
         <div>
-          <label htmlFor="serviceSearch" className="block text-sm font-medium mb-1">
-            Search Service Type
-          </label>
+          <label className="block text-sm font-medium mb-1">Search Service Type</label>
           <input
             type="text"
-            id="serviceSearch"
             name="serviceSearch"
             value={searchTerm}
             onChange={handleChange}
             placeholder="Search service type..."
             className="w-full border border-gray-300 rounded-md p-2 mb-1"
-            aria-label="Search service type"
           />
           <select
-            id="type"
             name="type"
             value={formData.type}
             onChange={handleChange}
             className="w-full border border-gray-300 rounded-md p-2"
             required
-            aria-required="true"
-            size={filteredOptions.length > 5 ? 5 : filteredOptions.length}
           >
             {filteredOptions.length === 0 && (
               <option disabled>No matching services</option>
@@ -224,11 +204,8 @@ const AddServiceForm = () => {
         </div>
 
         <div>
-          <label htmlFor="location" className="block text-sm font-medium mb-1">
-            Location
-          </label>
+          <label className="block text-sm font-medium mb-1">Location</label>
           <input
-            id="location"
             type="text"
             name="location"
             value={formData.location}
@@ -236,34 +213,26 @@ const AddServiceForm = () => {
             placeholder="e.g. Pune"
             className="w-full border border-gray-300 rounded-md p-2"
             required
-            aria-required="true"
           />
         </div>
 
         <div>
-          <label htmlFor="price" className="block text-sm font-medium mb-1">
-            Price (₹)
-          </label>
+          <label className="block text-sm font-medium mb-1">Price (₹)</label>
           <input
-            id="price"
             type="number"
             name="price"
             value={formData.price}
             onChange={handleChange}
             placeholder="e.g. 499"
-            className="w-full border border-gray-300 rounded-md p-2"
             min="1"
+            className="w-full border border-gray-300 rounded-md p-2"
             required
-            aria-required="true"
           />
         </div>
 
         <div className="sm:col-span-2">
-          <label htmlFor="description" className="block text-sm font-medium mb-1">
-            Description
-          </label>
+          <label className="block text-sm font-medium mb-1">Description</label>
           <textarea
-            id="description"
             name="description"
             value={formData.description}
             onChange={handleChange}
@@ -271,38 +240,28 @@ const AddServiceForm = () => {
             rows={4}
             className="w-full border border-gray-300 rounded-md p-2"
             required
-            aria-required="true"
           />
         </div>
 
         <div className="sm:col-span-2">
-          <label htmlFor="image" className="block text-sm font-medium mb-1">
-            Service Image
-          </label>
+          <label className="block text-sm font-medium mb-1">Service Image</label>
           <input
-            id="image"
             type="file"
             name="image"
             accept="image/*"
             onChange={handleChange}
+            className="w-full"
             required
-            aria-required="true"
-            aria-describedby="image-desc"
-            className="block w-full text-sm text-gray-600"
           />
-          <p id="image-desc" className="text-xs text-gray-500 mt-1">
-            Max size: 2MB. Allowed types: JPG, PNG, GIF, etc.
+          <p className="text-xs text-gray-500 mt-1">
+            Max size: 2MB. Allowed types: JPG, PNG, etc.
           </p>
-
           {previewImage && (
-            <div className="mt-3">
-              <p className="text-sm font-medium mb-1">Preview:</p>
-              <img
-                src={previewImage}
-                alt="Service Preview"
-                className="max-w-xs max-h-48 rounded border"
-              />
-            </div>
+            <img
+              src={previewImage}
+              alt="Preview"
+              className="mt-2 max-h-48 rounded border"
+            />
           )}
         </div>
       </div>
@@ -310,8 +269,7 @@ const AddServiceForm = () => {
       <button
         type="submit"
         disabled={loading}
-        className="mt-6 w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:bg-blue-300 transition"
-        aria-busy={loading}
+        className="mt-6 w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition disabled:opacity-50"
       >
         {loading ? "Adding Service..." : "Add Service"}
       </button>

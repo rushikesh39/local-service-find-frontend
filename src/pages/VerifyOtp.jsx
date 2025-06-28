@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { loginUser } from "../redux/userSlice";
 import { verifyOtp, sendOtp } from "../api/auth";
+import Swal from "sweetalert2";
 
 const VerifyOtp = () => {
   const { state } = useLocation();
@@ -14,10 +15,9 @@ const VerifyOtp = () => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
-  const [timer, setTimer] = useState(30); // 30-second resend cooldown
+  const [timer, setTimer] = useState(30); // cooldown
 
   const inputRefs = useRef([]);
-
   const { data } = state || {};
 
   if (!data) {
@@ -28,7 +28,7 @@ const VerifyOtp = () => {
     );
   }
 
-  // Start countdown timer
+  // Countdown timer for resend
   useEffect(() => {
     if (timer === 0) return;
     const interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
@@ -36,20 +36,13 @@ const VerifyOtp = () => {
   }, [timer]);
 
   const handleChange = (index, value) => {
-    if (!/^\d?$/.test(value)) return; // Only digit
+    if (!/^\d?$/.test(value)) return; // only digits
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
 
-    // Focus next
-    if (value && index < 5) {
-      inputRefs.current[index + 1].focus();
-    }
-
-    // Backspace auto-focus previous
-    if (!value && index > 0) {
-      inputRefs.current[index - 1].focus();
-    }
+    if (value && index < 5) inputRefs.current[index + 1]?.focus();
+    if (!value && index > 0) inputRefs.current[index - 1]?.focus();
   };
 
   const handleVerify = async (e) => {
@@ -61,6 +54,8 @@ const VerifyOtp = () => {
     setError("");
     try {
       await verifyOtp(data.user.email, fullOtp);
+
+      // Store token
       localStorage.setItem("token", data.token);
       dispatch(
         loginUser({
@@ -70,9 +65,19 @@ const VerifyOtp = () => {
           token: data.token,
         })
       );
+
+      await Swal.fire({
+        icon: "success",
+        title: "Email Verified",
+        text: "Your account has been successfully verified.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
       navigate("/services");
     } catch (err) {
-      setError(err.response?.data?.message || "OTP verification failed.");
+      const msg = err.response?.data?.message || "OTP verification failed.";
+      Swal.fire("Verification Failed", msg, "error");
     } finally {
       setLoading(false);
     }
@@ -86,17 +91,17 @@ const VerifyOtp = () => {
       await sendOtp(data.user.email);
       setMessage("OTP has been resent to your email.");
       setOtp(["", "", "", "", "", ""]);
-      setTimer(30); // Restart timer
+      setTimer(30);
       inputRefs.current[0].focus();
     } catch (err) {
-      setError("Failed to resend OTP. Try again.");
+      Swal.fire("Error", "Failed to resend OTP. Try again.", "error");
     } finally {
       setResending(false);
     }
   };
 
   return (
-    <div className=" min-h-[70vh] m-2 flex justify-center items-center bg-gray-100">
+    <div className="min-h-[70vh] m-2 flex justify-center items-center bg-gray-100">
       <form
         onSubmit={handleVerify}
         className="bg-white p-8 rounded shadow-md w-full max-w-md"

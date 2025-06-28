@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { registerUser, sendOtp } from "../api/auth";
+import Swal from "sweetalert2";
 
 const Signup = () => {
   const [form, setForm] = useState({
@@ -9,12 +10,13 @@ const Signup = () => {
     password: "",
     role: "user",
   });
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // ✅ Loading state
+
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleChange = (e) =>
+  const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const validateEmail = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -29,36 +31,57 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
 
     if (!form.name || !form.email || !form.password) {
-      return setError("All fields are required.");
+      Swal.fire("Error", "All fields are required.", "error");
+      return;
     }
 
     if (!validateEmail()) {
-      return setError("Enter valid email.");
+      Swal.fire("Error", "Enter a valid email or mobile number.", "error");
+      return;
     }
 
     if (!validatePassword()) {
-      return setError(
-        "Password must be at least 6 characters and include letters and numbers or special characters."
+      Swal.fire(
+        "Error",
+        "Password must be at least 6 characters and include letters and numbers or special characters.",
+        "error"
       );
+      return;
     }
 
-    setLoading(true); // ✅ Disable the button
+    setLoading(true);
 
     try {
       const data = await registerUser(form);
-      if (data) {
+
+      // ✅ New registration
+      if (data?.user) {
         await sendOtp(form.email);
-        navigate("/verify-otp", {
-          state: { data },
-        });
+        Swal.fire("Success", "OTP sent to your email.", "success");
+        navigate("/verify-otp", { state: { data } });
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed.");
+      const response = err?.response;
+      const backendMessage = response?.data?.message;
+
+      // ⚠️ Unverified user, allow re-verification
+      if (
+        response?.status === 403 &&
+        response.data?.unverified &&
+        response.data?.user
+      ) {
+        await sendOtp(form.email);
+        Swal.fire("Note", "Account already registered but not verified. OTP resent.", "info");
+        navigate("/verify-otp", {
+          state: { data: { user: response.data.user, token: "" } },
+        });
+      } else {
+        Swal.fire("Error", backendMessage || "Registration failed.", "error");
+      }
     } finally {
-      setLoading(false); // ✅ Enable again if you want to retry
+      setLoading(false);
     }
   };
 
@@ -69,8 +92,6 @@ const Signup = () => {
         className="bg-white p-8 rounded shadow-md w-full max-w-md"
       >
         <h2 className="text-2xl font-bold mb-6 text-center">Sign Up</h2>
-
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
         <input
           type="text"

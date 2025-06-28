@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { login } from "../api/auth";
 import { jwtDecode } from "jwt-decode";
+import Swal from "sweetalert2";
 
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
@@ -12,8 +13,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // Added loading state
+  const [loading, setLoading] = useState(false); // Button loading
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -24,14 +24,13 @@ const Login = () => {
     const passwordRegex = /^.{6,}$/;
 
     if (!emailRegex.test(form.email)) {
-      setError("Invalid email format");
+      Swal.fire("Invalid Email", "Please enter a valid email address.", "warning");
       return false;
     }
     if (!passwordRegex.test(form.password)) {
-      setError("Password must be at least 6 characters");
+      Swal.fire("Invalid Password", "Password must be at least 6 characters.", "warning");
       return false;
     }
-    setError("");
     return true;
   };
 
@@ -39,18 +38,39 @@ const Login = () => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    setLoading(true); // Disable the button
+    setLoading(true);
+
     try {
       const data = await login(form);
       if (data) {
         const decoded = jwtDecode(data.token);
-        dispatch(loginUser({ name: decoded.name, email: decoded.email, role: decoded.role, token: data.token }));
+
+        // Save user to redux
+        dispatch(loginUser({
+          name: decoded.name,
+          email: decoded.email,
+          role: decoded.role,
+          token: data.token,
+        }));
+
+        Swal.fire({
+          title: "Login Successful",
+          text: `Welcome back, ${decoded.name}!`,
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+
         navigate("/services");
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed.");
+      Swal.fire({
+        title: "Login Failed",
+        text: err.response?.data?.error || err.response?.data?.message || "An error occurred.",
+        icon: "error",
+      });
     } finally {
-      setLoading(false); // Re-enable the button
+      setLoading(false);
     }
   };
 
@@ -68,10 +88,6 @@ const Login = () => {
         <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
           Login
         </h2>
-
-        {error && (
-          <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
-        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
@@ -147,7 +163,7 @@ const Login = () => {
         <p className="mt-6 text-center text-gray-600">
           I don't have an account?{" "}
           <Link to="/signup" className="text-blue-600 hover:underline">
-            Sign In
+            Sign Up
           </Link>
         </p>
       </div>

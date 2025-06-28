@@ -17,7 +17,7 @@ const Navbar = () => {
   const dropdownRef = useRef(null);
 
   const user = useSelector((state) => state.user.user);
-  console.log("user",user)
+  console.log("user", user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -88,26 +88,39 @@ const Navbar = () => {
             <NavLink to="/" className="text-gray-700 hover:text-blue-600">
               Home
             </NavLink>
-            <NavLink to="/services" className="text-gray-700 hover:text-blue-600">
+            <NavLink
+              to="/services"
+              className="text-gray-700 hover:text-blue-600"
+            >
               Services
             </NavLink>
+
+            <NavLink
+              to="/about-us"
+              className="text-gray-700 hover:text-blue-600"
+            >
+              About US
+            </NavLink>
+            <NavLink
+              to="/contact-us"
+              className="text-gray-700 hover:text-blue-600"
+            >
+              contact Us
+            </NavLink>
             {user?.role === "provider" && (
-              <NavLink to="/provider" className="text-gray-700 hover:text-blue-600">
+              <NavLink
+                to="/provider"
+                className="text-gray-700 font-semibold font-semibold hover:text-blue-600"
+              >
                 Dashboard
               </NavLink>
             )}
-            <NavLink to="/about-us" className="text-gray-700 hover:text-blue-600">
-              About US
-            </NavLink>
-            <NavLink to="/contact-us" className="text-gray-700 hover:text-blue-600">
-              contact Us
-            </NavLink>
 
             {user ? (
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold focus:outline-none"
+                  className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold focus:outline-none cursor-pointer"
                 >
                   {avatarInitial}
                 </button>
@@ -167,12 +180,21 @@ const Navbar = () => {
                 )}
               </div>
             ) : (
-              <NavLink
-                to="/login"
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-              >
-                Login
-              </NavLink>
+              <>
+               <NavLink
+                  to="/signup"
+                  className="border-2 border-blue-600 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-700 hover:text-white px-4 transition"
+                >
+                  Sign Up
+                </NavLink>
+                <NavLink
+                  to="/login"
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                >
+                  Login
+                </NavLink>
+               
+              </>
             )}
           </div>
         </div>
@@ -181,20 +203,43 @@ const Navbar = () => {
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden px-4 pb-4 space-y-2 bg-white shadow-inner">
-          <NavLink to="/" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-gray-700 hover:text-blue-600">
+          <NavLink
+            to="/"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="block py-2 text-gray-700 hover:text-blue-600"
+          >
             Home
           </NavLink>
-          <NavLink to="/services" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-gray-700 hover:text-blue-600">
+          <NavLink
+            to="/services"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="block py-2 text-gray-700 hover:text-blue-600"
+          >
             Services
           </NavLink>
+          <NavLink
+            to="/about-us"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="block py-2 text-gray-700 hover:text-blue-600"
+          >
+            About Us
+          </NavLink>
+          <NavLink
+            to="/contact-us"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="block py-2 text-gray-700 hover:text-blue-600"
+          >
+            Contact Us
+          </NavLink>
           {user?.role === "provider" && (
-            <NavLink to="/provider" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-gray-700 hover:text-blue-600">
+            <NavLink
+              to="/provider"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="block py-2 text-gray-700 font-semibold hover:text-blue-600"
+            >
               Dashboard
             </NavLink>
           )}
-          <NavLink to="/about" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-gray-700 hover:text-blue-600">
-            About
-          </NavLink>
 
           {user && (
             <div className="mt-4 border-t border-gray-200 pt-4">
