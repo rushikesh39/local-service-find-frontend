@@ -41,7 +41,9 @@ const ServicesList = () => {
 
     navigate(`/book/${service._id}`);
   };
-
+  const handleCardClick = (service) => {
+    navigate(`/service/${service._id}`);
+  };
   return (
     <div className="py-10 px-4 bg-gray-50 min-h-screen">
       <h1 className="text-3xl font-bold mb-6 text-center capitalize">
@@ -50,19 +52,20 @@ const ServicesList = () => {
 
       {loading ? (
       <div className="flex justify-center items-center min-h-[50vh]">
-        <HashLoader color="#155dfc"  size={60} />
+        <HashLoader color="#2563EB"  size={60} />
       </div>
     ) : services.length === 0 ? (
       <p className="text-center text-gray-500">
         No services available for this category.
       </p>
     ) : (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto ">
         {services.map((service) => (
           <ServiceCard
             key={service._id}
             service={service}
             onBookNow={handleBookNow}
+            onServiceNow={handleCardClick}
           />
         ))}
       </div>

@@ -2,6 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useState, useEffect } from "react";
 import { createBooking } from "../api/auth";
+import Swal from "sweetalert2";
 
 const BookingPage = () => {
   const { serviceId } = useParams();
@@ -27,7 +28,7 @@ const BookingPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(serviceId, formData, 'booking')
+
     try {
       await createBooking({
         serviceId,
@@ -38,15 +39,27 @@ const BookingPage = () => {
         notes: formData.notes,
       });
 
-      alert(`Booking confirmed for ${service?.name}`);
+      await Swal.fire({
+        icon: "success",
+        title: "Booking Confirmed!",
+        text: `Your booking for ${service?.name} has been placed successfully.`,
+        confirmButtonColor: "#2563eb",
+      });
+
       navigate("/my-bookings");
     } catch (err) {
       console.error("Booking failed:", err);
-      alert("Booking failed.");
+
+      Swal.fire({
+        icon: "error",
+        title: "Booking Failed",
+        text: "Something went wrong. Please try again.",
+        confirmButtonColor: "#ef4444",
+      });
     }
   };
 
-  if (!service) return null; // while useEffect navigates, render nothing
+  if (!service) return null;
 
   return (
     <div className="min-h-screen bg-gray-100 py-12 px-4">

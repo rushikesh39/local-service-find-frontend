@@ -1,6 +1,10 @@
-const ServiceCard = ({ service, onBookNow }) => {
-    return (
-      <div className="bg-white rounded-lg shadow p-4">
+const ServiceCard = ({ service, onBookNow, onServiceNow }) => {
+  return (
+    <div className="bg-white rounded-lg shadow p-4">
+      <div
+        className="cursor-pointer transition"
+        onClick={() => onServiceNow(service)}
+      >
         <img
           src={service.image}
           alt={service.name}
@@ -12,15 +16,16 @@ const ServiceCard = ({ service, onBookNow }) => {
           <span className="text-yellow-600">⭐ {service.rating}</span>
           <span className="font-medium">{service.price}</span>
         </div>
-        <button
-          className="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-          onClick={() => onBookNow(service)}
-        >
-          Book Now
-        </button>
       </div>
-    );
-  };
-  
-  export default ServiceCard;
-  
+
+      <button
+        className="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 cursor-pointer"
+        onClick={() => onBookNow(service)}
+      >
+        Book Now
+      </button>
+    </div>
+  );
+};
+
+export default ServiceCard;

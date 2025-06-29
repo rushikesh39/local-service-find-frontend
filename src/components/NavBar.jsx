@@ -181,7 +181,7 @@ const Navbar = () => {
               </div>
             ) : (
               <>
-               <NavLink
+                <NavLink
                   to="/signup"
                   className="border-2 border-blue-600 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-700 hover:text-white px-4 transition"
                 >
@@ -193,7 +193,6 @@ const Navbar = () => {
                 >
                   Login
                 </NavLink>
-               
               </>
             )}
           </div>
@@ -241,7 +240,7 @@ const Navbar = () => {
             </NavLink>
           )}
 
-          {user && (
+          {user ? (
             <div className="mt-4 border-t border-gray-200 pt-4">
               <button
                 onClick={() => handleNavigate("/my-bookings")}
@@ -292,6 +291,21 @@ const Navbar = () => {
                 Logout
               </button>
             </div>
+          ) : (
+            <>
+              <button
+                onClick={() => handleNavigate("/login")}
+                className="block  text-blue-600 py-2 hover:text-blue-900 transition"
+              >
+                Login
+              </button>
+              <button
+                onClick={() => handleNavigate("/signup")}
+                className=" block text-blue-600 py-2 hover:text-blue-900 transition "
+              >
+                Sign Up
+              </button>
+            </>
           )}
         </div>
       )}

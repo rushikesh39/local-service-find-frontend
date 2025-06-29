@@ -1,66 +1,82 @@
-// src/pages/ServiceDetails.jsx
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import HashLoader from "react-spinners/HashLoader";
 
-import { useParams } from "react-router-dom";
+const ServiceDetail = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const services = useSelector((state) => state.services.services);
+  const user = useSelector((state) => state.user.user);
 
-const ServiceDetails = () => {
-  const { id } = useParams(); // Service ID from URL
+  const [service, setService] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Dummy Service Data (later connect from API/Redux)
-  const service = {
-    id: id,
-    title: "Plumbing Service",
-    description:
-      "Get professional plumbing services for your home or office. From leaking taps to full installations.",
-    price: "Starts at ₹499",
-    rating: 4.5,
-    provider: "Amit Plumbing Solutions",
-    location: "Pune, Maharashtra",
+  useEffect(() => {
+    const found = services.find((s) => s._id === id);
+    setService(found || null);
+    setLoading(false);
+  }, [id, services]);
+
+  const handleBookNow = () => {
+    if (!user) {
+      alert("You must be logged in to book this service.");
+      navigate("/login");
+    } else {
+      navigate(`/book/${service._id}`);
+    }
   };
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <HashLoader color="#155dfc" size={60} />
+      </div>
+    );
+  }
+
+  if (!service) {
+    return (
+      <div className="text-center mt-10 text-red-600">
+        Service not found.
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-5xl mx-auto px-6 py-12">
-      <div className="bg-white shadow-lg rounded-lg p-8">
-        
-        {/* Title and Info */}
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">{service.title}</h1>
-        <p className="text-gray-600 mb-6">{service.description}</p>
+    <div className="max-w-5xl mx-auto p-6 bg-white rounded-2xl shadow-lg mt-10 mb-10 flex flex-col md:flex-row gap-8">
+      <div className="md:w-1/2">
+        <img
+          src={service.image}
+          alt={service.name}
+          className="w-full h-72 object-cover rounded-lg shadow"
+        />
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Left Info */}
-          <div>
-            <p className="text-xl font-semibold text-gray-700 mb-2">Provided by:</p>
-            <p className="text-gray-800 mb-4">{service.provider}</p>
-
-            <p className="text-xl font-semibold text-gray-700 mb-2">Location:</p>
-            <p className="text-gray-800 mb-4">{service.location}</p>
-
-            <p className="text-xl font-semibold text-gray-700 mb-2">Starting Price:</p>
-            <p className="text-gray-800 mb-4">{service.price}</p>
-
-            <p className="text-xl font-semibold text-gray-700 mb-2">Rating:</p>
-            <p className="text-yellow-500 text-lg">⭐ {service.rating} / 5</p>
-          </div>
-
-          {/* Right Side: Image */}
-          <div className="flex justify-center items-center">
-            <img
-              src="/assets/plumber-service.jpg"
-              alt="Service"
-              className="w-full h-64 object-cover rounded-md"
-            />
-          </div>
+      <div className="md:w-1/2 flex flex-col justify-between">
+        <div>
+          <h1 className="text-3xl font-bold mb-4 text-gray-800">{service.name}</h1>
+          <p className="text-gray-600 mb-2">
+            <strong>Location:</strong> {service.location}
+          </p>
+          <p className="text-gray-600 mb-2">
+            <strong>Category:</strong> {service.category}
+          </p>
+          <p className="text-gray-600 mb-4">
+            <strong>Price:</strong> ₹{service.price}
+          </p>
+          <p className="text-gray-700 whitespace-pre-line">{service.description}</p>
         </div>
 
-        {/* CTA */}
-        <div className="mt-8 flex justify-center">
-          <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md transition">
-            Book Service
-          </button>
-        </div>
-
+        <button
+          onClick={handleBookNow}
+          className="mt-6 bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg transition text-lg font-medium"
+        >
+          Book Now
+        </button>
       </div>
     </div>
   );
 };
 
-export default ServiceDetails;
+export default ServiceDetail;
