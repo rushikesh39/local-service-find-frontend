@@ -1,43 +1,91 @@
+import * as React from "react";
+import {
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  Chip,
+} from "@mui/material";
+
+const columns = [
+  { id: "name", label: "Customer", minWidth: 150 },
+  { id: "service", label: "Service", minWidth: 150 },
+  { id: "date", label: "Date", minWidth: 100 },
+  { id: "status", label: "Status", minWidth: 100 },
+];
+
+const rows = [
+  { name: "John Doe", service: "Plumbing", date: "May 18", status: "Pending" },
+  { name: "Jane Smith", service: "Cleaning", date: "May 17", status: "Completed" },
+  { name: "Ali Khan", service: "Electrician", date: "May 16", status: "Pending" },
+  { name: "Anita Desai", service: "Tutoring", date: "May 15", status: "Completed" },
+];
+
+const statusChip = (status) => {
+  const color = status === "Pending" ? "warning" : "success";
+  return <Chip label={status} color={color} size="small" />;
+};
+
 const RequestTable = () => {
-  const requests = [
-    { name: "John Doe", service: "Plumbing", date: "May 18", status: "Pending" },
-    { name: "Jane Smith", service: "Cleaning", date: "May 17", status: "Completed" },
-  ];
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+
+  const handleChangePage = (event, newPage) => setPage(newPage);
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
 
   return (
-    <div className="bg-white shadow rounded-2xl p-4">
-      <h2 className="text-lg font-semibold mb-4">Recent Service Requests</h2>
-      <table className="w-full text-sm text-left">
-        <thead>
-          <tr className="text-gray-600 border-b">
-            <th className="py-2">Customer</th>
-            <th>Service</th>
-            <th>Date</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {requests.map((req, index) => (
-            <tr key={index} className="border-b hover:bg-gray-50">
-              <td className="py-2">{req.name}</td>
-              <td>{req.service}</td>
-              <td>{req.date}</td>
-              <td>
-                <span
-                  className={`px-2 py-1 rounded-full text-xs ${
-                    req.status === "Pending"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-green-100 text-green-700"
-                  }`}
+    <Paper sx={{ width: "100%", overflow: "hidden", mt: 4, borderRadius: 3 }}>
+      <TableContainer sx={{ maxHeight: 350 }}>
+        <Table stickyHeader aria-label="request table">
+          <TableHead>
+            <TableRow>
+              {columns.map((column) => (
+                <TableCell
+                  key={column.id}
+                  style={{ minWidth: column.minWidth, fontWeight: 600 }}
                 >
-                  {req.status}
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+                  {column.label}
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+
+          <TableBody>
+            {rows
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .map((row, i) => (
+                <TableRow hover role="checkbox" tabIndex={-1} key={i}>
+                  {columns.map((column) => {
+                    const value = row[column.id];
+                    return (
+                      <TableCell key={column.id}>
+                        {column.id === "status" ? statusChip(value) : value}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25]}
+        component="div"
+        count={rows.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
+    </Paper>
   );
 };
 

@@ -30,6 +30,8 @@ import AddNewService from "../pages/provider/AddNewService";
 import UpdateServiceForm from "../pages/provider/UpdateService";
 import ProviderBookings from "../pages/provider/ProviderBookings";
 import ProviderNotFound from "../pages/provider/ProviderNotFound";
+import Profile from "../pages/Profile";
+import ProviderProfile from "../pages/provider/ProviderProfile";
 
 const AppRoutes = () => {
   return (
@@ -53,6 +55,7 @@ const AppRoutes = () => {
       <Route path="/service/:id" element={<ServiceDetail />} />
       <Route path="/book/:serviceId" element={<BookingModal />} />
       <Route path="/my-bookings" element={<MyBookings />} />
+       <Route path="/profile" element={<Profile/>} />
 
       {/* Provider Dashboard - Protected Routes */}
       <Route
@@ -68,6 +71,7 @@ const AppRoutes = () => {
         <Route path="services/add-new-service" element={<AddNewService />} />
         <Route path="services/update/:id" element={<UpdateServiceForm />} />
         <Route path="bookings" element={<ProviderBookings />} />
+         <Route path="profile" element={<ProviderProfile />} />
         <Route path="*" element={<ProviderNotFound />} />
       </Route>
     </Routes>
