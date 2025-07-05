@@ -134,7 +134,7 @@ const Services = () => {
                           color="error"
                           onClick={() => handleDelete(service._id)}
                         >
-                          <Trash2 className="w-5 h-5 text-red-600 cursor-pointer" />
+                          <Trash2 className="w-5 h-5 text-red-600 cursor-pointer" /> 
                         </IconButton>
                       </TableCell>
                     </TableRow>

@@ -15,7 +15,7 @@ const ServicesList = () => {
   const dispatch = useDispatch();
 
   const services = useSelector((state) => state.services.services);
-  console.log("services", services);
+  // console.log("services", services);
   const fetchServices = async () => {
     try {
       setLoading(true);

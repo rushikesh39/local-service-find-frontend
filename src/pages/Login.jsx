@@ -43,10 +43,9 @@ const Login = () => {
     try {
       const data = await login(form);
       if (data) {
-        const decoded = jwtDecode(data.token);
-
         // Save user to redux
         dispatch(loginUser({
+          id:decoded.userId,
           name: decoded.name,
           email: decoded.email,
           role: decoded.role,

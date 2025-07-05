@@ -17,7 +17,6 @@ const Navbar = () => {
   const dropdownRef = useRef(null);
 
   const user = useSelector((state) => state.user.user);
-  console.log("user", user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 

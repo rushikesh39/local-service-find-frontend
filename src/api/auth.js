@@ -62,6 +62,10 @@ export const getProviderBookings = async () => {
   const response = await axiosInstance.get(`booking/provider/get-booking/`);
   return response.data;
 };
+export const todaysBookings = async () => {
+  const response = await axiosInstance.get(`booking/provider/todays-booking/`);
+  return response.data;
+};
 export const servicesList = async () => {
   const response = await axiosInstance.get(`services`);
   return response.data;
@@ -86,5 +90,14 @@ export const createBooking = async ({
 };
 export const getUserBooking = async () => {
   const response = await axiosInstance.get(`booking/user/get-booking/`);
+  return response.data;
+};
+
+export const updateBookingStatus = async (id, newStatus) => {
+  const response = await axiosInstance.patch(`booking/provider/update-booking-status/`,{id,newStatus});
+  return response.data;
+};
+export const dashboardStats = async () => {
+  const response = await axiosInstance.get(`booking/provider/dashboard-starts/`);
   return response.data;
 };
