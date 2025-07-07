@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { addNewServices } from "../../api/auth";
 import Swal from "sweetalert2";
+import { Upload, X } from "lucide-react";
 
 const serviceOptions = [
   { value: "AC Repair", label: "AC Repair" },
@@ -53,17 +54,10 @@ const AddServiceForm = () => {
     image: null,
   });
 
-  const [previewImage, setPreviewImage] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
-
-  useEffect(() => {
-    return () => {
-      if (previewImage) URL.revokeObjectURL(previewImage);
-    };
-  }, [previewImage]);
 
   const filteredOptions = serviceOptions.filter((option) =>
     option.label.toLowerCase().includes(searchTerm.toLowerCase())
@@ -78,8 +72,6 @@ const AddServiceForm = () => {
       if (!file.type.startsWith("image/")) return setError("File must be an image.");
       if (file.size > 2 * 1024 * 1024) return setError("Image must be less than 2MB.");
 
-      if (previewImage) URL.revokeObjectURL(previewImage);
-      setPreviewImage(URL.createObjectURL(file));
       setFormData((prev) => ({ ...prev, image: file }));
       setError("");
     } else if (name === "type") {
@@ -245,23 +237,38 @@ const AddServiceForm = () => {
 
         <div className="sm:col-span-2">
           <label className="block text-sm font-medium mb-1">Service Image</label>
+
+          <label
+            htmlFor="fileUpload"
+            className="flex items-center justify-center gap-2 bg-blue-50 hover:bg-blue-100 border border-dashed border-blue-300 rounded-md p-4 text-blue-700 cursor-pointer transition"
+          >
+            <Upload className="w-5 h-5" />
+            <span>Upload Service Image (Max 2MB)</span>
+          </label>
+
           <input
             type="file"
+            id="fileUpload"
             name="image"
             accept="image/*"
             onChange={handleChange}
-            className="w-full"
+            className="hidden"
             required
           />
-          <p className="text-xs text-gray-500 mt-1">
-            Max size: 2MB. Allowed types: JPG, PNG, etc.
-          </p>
-          {previewImage && (
-            <img
-              src={previewImage}
-              alt="Preview"
-              className="mt-2 max-h-48 rounded border"
-            />
+
+          {formData.image && (
+            <div className="mt-2 flex items-center justify-between bg-gray-50 border border-gray-200 rounded-md px-4 py-2 text-sm text-gray-700">
+              <span className="truncate">{formData.image.name}</span>
+              <button
+                type="button"
+                onClick={() =>
+                  setFormData((prev) => ({ ...prev, image: null }))
+                }
+                className="text-red-500 hover:text-red-700"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
           )}
         </div>
       </div>

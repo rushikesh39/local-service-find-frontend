@@ -12,10 +12,7 @@ export const sendOtp = async (email) => {
 };
 
 export const verifyOtp = async (email, otp) => {
-  const response = await axiosInstance.post("/users/verify-otp", {
-    email,
-    otp,
-  });
+  const response = await axiosInstance.post("/users/verify-otp", { email, otp, });
   return response.data;
 };
 
@@ -33,10 +30,7 @@ export const getServices = async (providerId) => {
 };
 export const searchServices = async (query, location) => {
   const response = await axiosInstance.get(`/providers/search`, {
-    params: {
-      location,
-      query,
-    },
+    params: {location, query,},
   });
   return response.data;
 };
@@ -70,22 +64,8 @@ export const servicesList = async () => {
   const response = await axiosInstance.get(`services`);
   return response.data;
 };
-export const createBooking = async ({
-  serviceId,
-  name,
-  mobile,
-  scheduledDate,
-  address,
-  notes,
-}) => {
-  const response = await axiosInstance.post(`booking/book`, {
-    serviceId,
-    name,
-    mobile,
-    scheduledDate,
-    address,
-    notes,
-  });
+export const createBooking = async ({serviceId, name, mobile, scheduledDate, address, notes,}) => {
+  const response = await axiosInstance.post(`booking/book`, {serviceId, name, mobile,scheduledDate,  address,notes});
   return response.data;
 };
 export const getUserBooking = async () => {
@@ -100,4 +80,12 @@ export const updateBookingStatus = async (id, newStatus) => {
 export const dashboardStats = async () => {
   const response = await axiosInstance.get(`booking/provider/dashboard-starts/`);
   return response.data;
+};
+export const popularServices = async () => {
+  const response = await axiosInstance.get(`services/popular-services`);
+  return response.data;
+};
+export const contact_us = async (userData) => {
+  const response = await axiosInstance.post("/users/contact-us", userData);
+  return response.data; // Should contain backend OTP or message
 };

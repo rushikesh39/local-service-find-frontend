@@ -45,7 +45,7 @@ const ServicesList = () => {
     navigate(`/service/${service._id}`);
   };
   return (
-    <div className="py-10 px-4 bg-gray-50 min-h-screen">
+    <div className="py-10 px-4 bg-gray-100 min-h-screen">
       <h1 className="text-3xl font-bold mb-6 text-center capitalize">
         {category} Services
       </h1>
@@ -56,7 +56,7 @@ const ServicesList = () => {
       </div>
     ) : services.length === 0 ? (
       <p className="text-center text-gray-500">
-        No services available for this category.
+        No services available.
       </p>
     ) : (
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto ">

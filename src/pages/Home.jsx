@@ -1,35 +1,62 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MapPin, Wrench } from "lucide-react";
+import Swal from "sweetalert2";
+import { popularServices } from "../api/auth";
 
 const Home = () => {
   const navigate = useNavigate();
   const [serviceQuery, setServiceQuery] = useState("");
   const [location, setLocation] = useState("");
+  const [popular, setPopular] = useState([]);
+
+  const loadPopularServices = async () => {
+    try {
+      const data = await popularServices();
+      console.log(data);
+      setPopular(data);
+    } catch (err) {
+      console.error("Error fetching popular services", err);
+    } finally {
+      // setLoadingPopular(false);
+    }
+  };
+
+  useEffect(() => {
+    loadPopularServices();
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
 
     if (!serviceQuery.trim() || !location.trim()) {
-      alert("Please enter both service and location.");
+      Swal.fire({
+        icon: "warning",
+        title: "Missing Input",
+        text: "Please enter both service and location to search.",
+        confirmButtonColor: "#3085d6",
+      });
       return;
     }
 
     // ✅ FIX: used correct variable `serviceQuery`
     navigate(
-      `/search-results?location=${encodeURIComponent(location)}&query=${encodeURIComponent(serviceQuery)}`
+      `/search-results?location=${encodeURIComponent(
+        location
+      )}&query=${encodeURIComponent(serviceQuery)}`
     );
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-100">
       <section className="bg-gradient-to-r from-blue-600 to-blue-500 text-white">
         <div className="max-w-7xl mx-auto px-6 py-24 text-center">
           <h1 className="text-4xl sm:text-5xl font-extrabold mb-6 leading-tight">
             Find Local Services Near You!
           </h1>
           <p className="text-lg sm:text-xl mb-10 text-white/90">
-            Connect with trusted professionals for your home, office, and personal needs.
+            Connect with trusted professionals for your home, office, and
+            personal needs.
           </p>
 
           {/* Search Bar */}
@@ -77,25 +104,34 @@ const Home = () => {
       </section>
 
       {/* Popular Services */}
-      <section className="max-w-7xl mx-auto px-6 py-12">
-        <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">Popular Services</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-          {[
-            { name: "Plumber", image: "/assets/plumber.png" },
-            { name: "Electrician", image: "/assets/electrician.png" },
-            { name: "Tutor", image: "/assets/tutor.png" },
-            { name: "Cleaning", image: "/assets/cleaning.png" },
-          ].map((service, idx) => (
+      <section className="max-w-7xl mx-auto py-12 px-4 ">
+        <h2 className="text-3xl font-bold text-gray-800 mb-10 text-center">
+          Popular Services
+        </h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+          {popular.map((service, idx) => (
             <div
               key={idx}
-              className="bg-white shadow-md rounded-lg p-6 text-center hover:shadow-lg transition"
+              className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-transform duration-300 transform hover:-translate-y-1 p-5 flex flex-col items-center text-center"
             >
-              <img src={service.image} alt={service.name} className="h-16 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-700">{service.name}</h3>
+              <div className="">
+                <img src={service.image} alt={service.name} className="h-30 " />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800">
+                {service.name}
+              </h3>
+              {service.category && (
+                <p className="text-sm text-gray-500 mt-1">{service.category}</p>
+              )}
+              <span className="mt-3 inline-block text-xs text-blue-500 font-medium uppercase tracking-wide">
+                {service.count || 0} Bookings
+              </span>
             </div>
           ))}
         </div>
       </section>
+
       {/* Top Rated Services Section */}
       <section className="bg-white py-12 px-6">
         <div className="max-w-7xl mx-auto">
@@ -107,7 +143,7 @@ const Home = () => {
             {[1, 2, 3].map((provider) => (
               <div
                 key={provider}
-                className="bg-gray-100 p-6 rounded-lg shadow hover:shadow-lg transition"
+                className="bg-gray-200 p-6 rounded-lg shadow hover:shadow-lg transition"
               >
                 <img
                   src="#"
