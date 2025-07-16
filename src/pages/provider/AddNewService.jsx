@@ -69,8 +69,10 @@ const AddServiceForm = () => {
     if (name === "image") {
       const file = files?.[0];
       if (!file) return setError("Please select an image.");
-      if (!file.type.startsWith("image/")) return setError("File must be an image.");
-      if (file.size > 2 * 1024 * 1024) return setError("Image must be less than 2MB.");
+      if (!file.type.startsWith("image/"))
+        return setError("File must be an image.");
+      if (file.size > 2 * 1024 * 1024)
+        return setError("Image must be less than 2MB.");
 
       setFormData((prev) => ({ ...prev, image: file }));
       setError("");
@@ -168,7 +170,9 @@ const AddServiceForm = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Search Service Type</label>
+          <label className="block text-sm font-medium mb-1">
+            Search Service Type
+          </label>
           <input
             type="text"
             name="serviceSearch"
@@ -236,15 +240,18 @@ const AddServiceForm = () => {
         </div>
 
         <div className="sm:col-span-2">
-          <label className="block text-sm font-medium mb-1">Service Image</label>
-
-          <label
-            htmlFor="fileUpload"
-            className="flex items-center justify-center gap-2 bg-blue-50 hover:bg-blue-100 border border-dashed border-blue-300 rounded-md p-4 text-blue-700 cursor-pointer transition"
-          >
-            <Upload className="w-5 h-5" />
-            <span>Upload Service Image (Max 2MB)</span>
+          <label className="block text-sm font-medium mb-1">
+            Service Image
           </label>
+          {!formData.image && (
+            <label
+              htmlFor="fileUpload"
+              className="flex items-center justify-center gap-2 bg-blue-50 hover:bg-blue-100 border border-dashed border-blue-300 rounded-md p-4 text-blue-700 cursor-pointer transition"
+            >
+              <Upload className="w-5 h-5" />
+              <span>Upload Service Image (Max 2MB)</span>
+            </label>
+          )}
 
           <input
             type="file"

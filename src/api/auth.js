@@ -89,3 +89,7 @@ export const contact_us = async (userData) => {
   const response = await axiosInstance.post("/users/contact-us", userData);
   return response.data; // Should contain backend OTP or message
 };
+export const updateProviderProfile = async (userData) => {
+  const response = await axiosInstance.post("/users/update-profile", userData);
+  return response.data; // Should contain backend OTP or message
+};

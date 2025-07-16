@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getServiceById, updateServices } from "../../api/auth";
+import Swal from "sweetalert2";
+import { Upload, X } from "lucide-react";
 
 const serviceOptions = [
   { value: "AC Repair", label: "AC Repair" },
@@ -55,44 +57,33 @@ const UpdateServiceForm = () => {
     image: null,
   });
 
-  const [previewImage, setPreviewImage] = useState(null);
   const [existingImageUrl, setExistingImageUrl] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchService = async () => {
       try {
         setLoading(true);
         const { service } = await getServiceById(id);
-        console.log(service)
         setFormData({
           name: service.name || "",
           type: service.category || "",
           location: service.location || "",
           description: service.description || "",
           price: service.price || "",
-          image: service.image||null,
+          image: null,
         });
-        setExistingImageUrl(service.image|| "");
-        setLoading(false);
+        setExistingImageUrl(service.image || "");
       } catch (err) {
         setError("Failed to load service data.");
+      } finally {
         setLoading(false);
       }
     };
-
     if (id) fetchService();
   }, [id]);
-
-  useEffect(() => {
-    return () => {
-      if (previewImage?.startsWith("blob:")) {
-        URL.revokeObjectURL(previewImage);
-      }
-    };
-  }, [previewImage]);
 
   const filteredOptions = serviceOptions.filter((option) =>
     option.label.toLowerCase().includes(searchTerm.toLowerCase())
@@ -103,37 +94,21 @@ const UpdateServiceForm = () => {
 
     if (name === "image") {
       const file = files?.[0];
-      if (!file) {
-        setError("Please select an image.");
-        return;
-      }
-
-      if (!file.type.startsWith("image/")) {
-        setError("Selected file must be an image.");
-        return;
-      }
-
-      if (file.size > 2 * 1024 * 1024) {
-        setError("Image size must be less than 2MB.");
-        return;
-      }
-
-      if (previewImage?.startsWith("blob:")) {
-        URL.revokeObjectURL(previewImage);
-      }
-
-      setPreviewImage(URL.createObjectURL(file));
+      if (!file) return setError("Please select an image.");
+      if (!file.type.startsWith("image/"))
+        return setError("File must be an image.");
+      if (file.size > 2 * 1024 * 1024)
+        return setError("Image must be less than 2MB.");
       setFormData((prev) => ({ ...prev, image: file }));
       setError("");
     } else if (name === "type") {
       setFormData((prev) => ({ ...prev, type: value }));
       setSearchTerm("");
-      if (error) setError("");
     } else if (name === "serviceSearch") {
       setSearchTerm(value);
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
-      if (error) setError("");
+      setError("");
     }
   };
 
@@ -149,12 +124,8 @@ const UpdateServiceForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const validationError = validateInputs();
-    if (validationError) {
-      setError(validationError);
-      return;
-    }
+    if (validationError) return setError(validationError);
 
     setError("");
     setLoading(true);
@@ -166,20 +137,22 @@ const UpdateServiceForm = () => {
       serviceData.append("location", formData.location.trim());
       serviceData.append("description", formData.description.trim());
       serviceData.append("price", formData.price);
-
-      if (formData.image) {
-        serviceData.append("image", formData.image);
-      }
+      if (formData.image) serviceData.append("image", formData.image);
 
       await updateServices(id, serviceData);
-      alert("Service updated successfully!");
-      navigate("/provider/services");
+
+      Swal.fire({
+        title: "Success!",
+        text: "Service updated successfully.",
+        icon: "success",
+        confirmButtonText: "Go to My Services",
+      }).then(() => navigate("/provider/services"));
     } catch (err) {
       const msg =
         err.response?.data?.error ||
         err.message ||
         "Something went wrong while updating the service.";
-      setError(msg);
+      Swal.fire({ title: "Error", text: msg, icon: "error" });
     } finally {
       setLoading(false);
     }
@@ -194,19 +167,19 @@ const UpdateServiceForm = () => {
       onSubmit={handleSubmit}
       className="bg-white shadow rounded-2xl p-6 w-full max-w-2xl mx-auto"
       noValidate
-      aria-live="polite"
     >
       <h2 className="text-2xl font-semibold mb-4">Update Service</h2>
 
-      {error && <div className="mb-4 text-red-600 text-sm">{error}</div>}
+      {error && (
+        <div className="mb-4 text-red-600 text-sm" role="alert">
+          {error}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium mb-1">
-            Service Name
-          </label>
+          <label className="block text-sm font-medium mb-1">Service Name</label>
           <input
-            id="name"
             type="text"
             name="name"
             value={formData.name}
@@ -218,12 +191,9 @@ const UpdateServiceForm = () => {
         </div>
 
         <div>
-          <label htmlFor="serviceSearch" className="block text-sm font-medium mb-1">
-            Search Service Type
-          </label>
+          <label className="block text-sm font-medium mb-1">Search Service Type</label>
           <input
             type="text"
-            id="serviceSearch"
             name="serviceSearch"
             value={searchTerm}
             onChange={handleChange}
@@ -231,13 +201,11 @@ const UpdateServiceForm = () => {
             className="w-full border border-gray-300 rounded-md p-2 mb-1"
           />
           <select
-            id="type"
             name="type"
             value={formData.type}
             onChange={handleChange}
             className="w-full border border-gray-300 rounded-md p-2"
             required
-            size={filteredOptions.length > 5 ? 5 : filteredOptions.length}
           >
             {filteredOptions.length === 0 && (
               <option disabled>No matching services</option>
@@ -251,11 +219,8 @@ const UpdateServiceForm = () => {
         </div>
 
         <div>
-          <label htmlFor="location" className="block text-sm font-medium mb-1">
-            Location
-          </label>
+          <label className="block text-sm font-medium mb-1">Location</label>
           <input
-            id="location"
             type="text"
             name="location"
             value={formData.location}
@@ -267,28 +232,22 @@ const UpdateServiceForm = () => {
         </div>
 
         <div>
-          <label htmlFor="price" className="block text-sm font-medium mb-1">
-            Price (₹)
-          </label>
+          <label className="block text-sm font-medium mb-1">Price (₹)</label>
           <input
-            id="price"
             type="number"
             name="price"
             value={formData.price}
             onChange={handleChange}
             placeholder="e.g. 499"
-            className="w-full border border-gray-300 rounded-md p-2"
             min="1"
+            className="w-full border border-gray-300 rounded-md p-2"
             required
           />
         </div>
 
         <div className="sm:col-span-2">
-          <label htmlFor="description" className="block text-sm font-medium mb-1">
-            Description
-          </label>
+          <label className="block text-sm font-medium mb-1">Description</label>
           <textarea
-            id="description"
             name="description"
             value={formData.description}
             onChange={handleChange}
@@ -300,58 +259,54 @@ const UpdateServiceForm = () => {
         </div>
 
         <div className="sm:col-span-2">
-          <label htmlFor="image" className="block text-sm font-medium mb-1">
-            Service Image
-          </label>
+          <label className="block text-sm font-medium mb-1">Service Image</label>
+
+          {!formData.image && (
+            <label
+              htmlFor="fileUpload"
+              className="flex items-center justify-center gap-2 bg-blue-50 hover:bg-blue-100 border border-dashed border-blue-300 rounded-md p-4 text-blue-700 cursor-pointer transition"
+            >
+              <Upload className="w-5 h-5" />
+              <span>Upload New Image (Max 2MB)</span>
+            </label>
+          )}
+
           <input
-            id="image"
             type="file"
+            id="fileUpload"
             name="image"
             accept="image/*"
             onChange={handleChange}
-            className="block w-full text-sm text-gray-600"
+            className="hidden"
           />
-          <p className="text-xs text-gray-500 mt-1">
-            Upload new image to replace existing one. Max size: 2MB.
-          </p>
 
-          {previewImage ? (
-            <div className="mt-3">
-              <p className="text-sm font-medium mb-1">Preview (New Image):</p>
-              <img
-                src={previewImage}
-                alt="New service preview"
-                className="max-w-xs max-h-48 rounded border"
-              />
+          {formData.image && (
+            <div className="mt-2 flex items-center justify-between bg-gray-50 border border-gray-200 rounded-md px-4 py-2 text-sm text-gray-700">
+              <span className="truncate">{formData.image.name}</span>
               <button
                 type="button"
-                onClick={() => {
-                  URL.revokeObjectURL(previewImage);
-                  setPreviewImage(null);
-                  setFormData((prev) => ({ ...prev, image: null }));
-                }}
-                className="text-sm text-red-600 mt-2 underline"
+                onClick={() =>
+                  setFormData((prev) => ({ ...prev, image: null }))
+                }
+                className="text-red-500 hover:text-red-700"
               >
-                Remove New Image
+                <X className="w-4 h-4" />
               </button>
             </div>
-          ) : existingImageUrl ? (
-            <div className="mt-3">
-              <p className="text-sm font-medium mb-1">Current Image:</p>
-              <img
-                src={existingImageUrl}
-                alt="Current service from Cloudinary"
-                className="max-w-xs max-h-48 rounded border"
-              />
-            </div>
-          ) : null}
+          )}
+
+          {!formData.image && existingImageUrl && (
+            <p className="text-xs text-gray-500 mt-2">
+              Current Image will be used unless replaced.
+            </p>
+          )}
         </div>
       </div>
 
       <button
         type="submit"
         disabled={loading}
-        className="mt-6 w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:bg-blue-300 transition"
+        className="mt-6 w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition disabled:opacity-50"
       >
         {loading ? "Updating Service..." : "Update Service"}
       </button>

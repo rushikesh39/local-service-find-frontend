@@ -2,23 +2,27 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { MapPin, Wrench } from "lucide-react";
 import Swal from "sweetalert2";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 import { popularServices } from "../api/auth";
+import ServiceCard from "./ServiceCard";
 
 const Home = () => {
   const navigate = useNavigate();
   const [serviceQuery, setServiceQuery] = useState("");
   const [location, setLocation] = useState("");
   const [popular, setPopular] = useState([]);
+  const [loadingPopular, setLoadingPopular] = useState(true);
 
   const loadPopularServices = async () => {
     try {
       const data = await popularServices();
-      console.log(data);
       setPopular(data);
+      console.log(data)
     } catch (err) {
       console.error("Error fetching popular services", err);
     } finally {
-      // setLoadingPopular(false);
+      setLoadingPopular(false);
     }
   };
 
@@ -39,7 +43,6 @@ const Home = () => {
       return;
     }
 
-    // ✅ FIX: used correct variable `serviceQuery`
     navigate(
       `/search-results?location=${encodeURIComponent(
         location
@@ -47,8 +50,17 @@ const Home = () => {
     );
   };
 
+  const handleBookNow = (service) => {
+    navigate(`/book/${service._id}`);
+  };
+
+  const handleCardClick = (service) => {
+    navigate(`/service/${service._id}`);
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
+      {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-600 to-blue-500 text-white">
         <div className="max-w-7xl mx-auto px-6 py-24 text-center">
           <h1 className="text-4xl sm:text-5xl font-extrabold mb-6 leading-tight">
@@ -103,36 +115,50 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Popular Services */}
-      <section className="max-w-7xl mx-auto py-12 px-4 ">
+      {/* Popular Services Section */}
+      <section className="max-w-7xl mx-auto py-12 px-4">
         <h2 className="text-3xl font-bold text-gray-800 mb-10 text-center">
           Popular Services
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-          {popular.map((service, idx) => (
-            <div
-              key={idx}
-              className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-transform duration-300 transform hover:-translate-y-1 p-5 flex flex-col items-center text-center"
-            >
-              <div className="">
-                <img src={service.image} alt={service.name} className="h-30 " />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-800">
-                {service.name}
-              </h3>
-              {service.category && (
-                <p className="text-sm text-gray-500 mt-1">{service.category}</p>
-              )}
-              <span className="mt-3 inline-block text-xs text-blue-500 font-medium uppercase tracking-wide">
-                {service.count || 0} Bookings
-              </span>
-            </div>
-          ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
+          {loadingPopular
+            ? Array(4)
+                .fill()
+                .map((_, idx) => (
+                  <div
+                    key={idx}
+                    className="bg-white rounded-2xl shadow p-5 flex flex-col space-y-3 w-full"
+                  >
+                    <div className="w-full h-40">
+                      <Skeleton width="100%" height="100%" />
+                    </div>
+                    <div className="w-3/4 h-5">
+                      <Skeleton width="100%" height="100%" />
+                    </div>
+                    <div className="w-1/2 h-4">
+                      <Skeleton width="100%" height="100%" />
+                    </div>
+                    <div className="w-1/3 h-3">
+                      <Skeleton width="100%" height="100%" />
+                    </div>
+                    <div className="w-full h-10">
+                      <Skeleton width="100%" height="100%" />
+                    </div>
+                  </div>
+                ))
+            : popular.map((service) => (
+                <ServiceCard
+                  key={service._id}
+                  service={service}
+                  onBookNow={handleBookNow}
+                  onServiceNow={handleCardClick}
+                />
+              ))}
         </div>
       </section>
 
-      {/* Top Rated Services Section */}
+      {/* Top Rated Professionals Section */}
       <section className="bg-white py-12 px-6">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">
