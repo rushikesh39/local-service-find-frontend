@@ -32,6 +32,8 @@ import ProviderBookings from "../pages/provider/ProviderBookings";
 import ProviderNotFound from "../pages/provider/ProviderNotFound";
 import Profile from "../pages/Profile";
 import ProviderProfile from "../pages/provider/ProviderProfile";
+import ReviewForm from "../pages/ReviewForm";
+import ErrorPage from "../pages/ErrorPage";
 
 const AppRoutes = () => {
   return (
@@ -41,6 +43,7 @@ const AppRoutes = () => {
       <Route path="/about-us" element={<AboutUs />} />
       <Route path="/contact-us" element={<ContactUs />} />
       <Route path="/search-results" element={<SearchResults />} />
+      <Route path="*" element={<ErrorPage/>} />
 
       {/* Auth Routes */}
       <Route path="/login" element={<Login />} />
@@ -54,7 +57,8 @@ const AppRoutes = () => {
       <Route path="/services" element={<ServiceList />} />
       <Route path="/service/:id" element={<ServiceDetail />} />
       <Route path="/book/:serviceId" element={<BookingModal />} />
-      <Route path="/my-bookings" element={<MyBookings />} />
+      <Route path="/my-bookings" element={<MyBookings />} />      
+      <Route path="/review/:bookingId" element={<ReviewForm />} />
        <Route path="/profile" element={<Profile/>} />
 
       {/* Provider Dashboard - Protected Routes */}

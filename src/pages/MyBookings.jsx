@@ -1,10 +1,19 @@
+// pages/MyBookings.jsx
 import { useEffect, useState } from "react";
-import { getUserBooking } from "../api/auth"; // adjust path as needed
-import { Calendar, MapPin, ClipboardList, Clock, CheckCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { getUserBooking } from "../api/auth";
+import {
+  Calendar,
+  MapPin,
+  ClipboardList,
+  Clock,
+  CheckCircle,
+} from "lucide-react";
 
 const MyBookings = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -22,7 +31,7 @@ const MyBookings = () => {
   }, []);
 
   return (
-    <div className=" bg-gray-100 py-10 px-4">
+    <div className="bg-gray-100 py-10 px-4">
       <h1 className="text-4xl font-bold text-center text-blue-600 mb-8">
         My Bookings
       </h1>
@@ -44,13 +53,18 @@ const MyBookings = () => {
               >
                 <h2 className="text-xl font-semibold text-gray-800 mb-3">
                   {booking?.serviceId?.name}{" "}
-                  <span className="text-sm text-gray-500">({booking?.serviceId?.category})</span>
+                  <span className="text-sm text-gray-500">
+                    ({booking?.serviceId?.category})
+                  </span>
                 </h2>
 
                 <div className="space-y-2 text-sm text-gray-700">
                   <p className="flex items-center gap-2">
                     <CheckCircle size={16} className="text-blue-500" />
-                    <span>Status:</span> <span className="capitalize font-medium">{booking.status}</span>
+                    <span>Status:</span>{" "}
+                    <span className="capitalize font-medium">
+                      {booking.status}
+                    </span>
                   </p>
 
                   <p className="flex items-center gap-2">
@@ -60,7 +74,11 @@ const MyBookings = () => {
 
                   <p className="flex items-center gap-2">
                     <Clock size={16} className="text-orange-500" />
-                    <span>Time:</span> {scheduled.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    <span>Time:</span>{" "}
+                    {scheduled.toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </p>
 
                   <p className="flex items-center gap-2">
@@ -79,6 +97,15 @@ const MyBookings = () => {
                 <p className="text-xs text-gray-500 mt-4">
                   Booked on: {bookedOn.toLocaleString()}
                 </p>
+
+                {booking.status === "completed" && (
+                  <button
+                    onClick={() => navigate(`/review/${booking._id}`)}
+                    className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded shadow"
+                  >
+                    Confirm Completion & Review
+                  </button>
+                )}
               </div>
             );
           })}

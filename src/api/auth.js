@@ -93,3 +93,7 @@ export const updateProviderProfile = async (userData) => {
   const response = await axiosInstance.post("/users/update-profile", userData);
   return response.data; // Should contain backend OTP or message
 };
+export const submitReview = async (bookingId, formData) => {
+  const res = await axios.post(`/api/reviews/submit/${bookingId}`, formData);
+  return res.data;
+};
