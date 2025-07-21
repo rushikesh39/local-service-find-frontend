@@ -1,7 +1,5 @@
-// pages/MyBookings.jsx
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { getUserBooking } from "../api/auth";
+import { getUserBooking, submitReview } from "../api/auth";
 import {
   Calendar,
   MapPin,
@@ -9,16 +7,23 @@ import {
   Clock,
   CheckCircle,
 } from "lucide-react";
+import Swal from "sweetalert2";
+import ReviewPopup from "./ReviewPopup";
 
 const MyBookings = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [form, setForm] = useState({ rating: 0, comment: "", image: null });
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const data = await getUserBooking();
+        const response = await getUserBooking();
+        const data = Array.isArray(response) ? response : response?.bookings;
+        console.log("data", data);
         setBookings(data);
       } catch (error) {
         console.error("Failed to fetch bookings", error);
@@ -30,8 +35,67 @@ const MyBookings = () => {
     fetchBookings();
   }, []);
 
+  const openReviewForm = (booking) => {
+    setSelectedBooking(booking);
+    setForm({ rating: 0, comment: "", image: null });
+    setShowReviewForm(true);
+  };
+
+  const handleRatingChange = (value) => {
+    setForm((prev) => ({ ...prev, rating: Number(value) }));
+  };
+
+  const handleCommentChange = (e) => {
+    setForm((prev) => ({ ...prev, comment: e.target.value }));
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    setForm((prev) => ({ ...prev, image: file }));
+  };
+
+  const handleReviewSubmit = async () => {
+    const formData = new FormData();
+    formData.append("rating", Number(form.rating));
+    formData.append("reviewText", form.comment);
+    formData.append("providerId", selectedBooking?.providerId?._id);
+    formData.append("serviceId", selectedBooking?.serviceId?._id);
+    formData.append("bookingId", selectedBooking?._id);
+    if (form.image) {
+      formData.append("image", form.image);
+    }
+
+    console.log("FormData contents:");
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
+
+    try {
+      setSubmitting(true);
+      await submitReview(formData);
+      setShowReviewForm(false);
+
+      Swal.fire({
+        icon: "success",
+        title: "Thank you!",
+        text: "Your review has been submitted successfully.",
+        confirmButtonColor: "#2563eb", // Tailwind blue-600
+      });
+    } catch (err) {
+      console.error("Failed to submit review", err);
+      Swal.fire({
+        icon: "error",
+        title: "Oops!",
+        text: "Something went wrong while submitting your review.",
+        confirmButtonColor: "#ef4444", // Tailwind red-500
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
-    <div className="bg-gray-100 py-10 px-4">
+    <div className="bg-gray-100 py-10 px-4 min-h-[85vh]">
       <h1 className="text-4xl font-bold text-center text-blue-600 mb-8">
         My Bookings
       </h1>
@@ -98,9 +162,9 @@ const MyBookings = () => {
                   Booked on: {bookedOn.toLocaleString()}
                 </p>
 
-                {booking.status === "completed" && (
+                {booking.status === "confirmed" && (
                   <button
-                    onClick={() => navigate(`/review/${booking._id}`)}
+                    onClick={() => openReviewForm(booking)}
                     className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded shadow"
                   >
                     Confirm Completion & Review
@@ -110,6 +174,19 @@ const MyBookings = () => {
             );
           })}
         </div>
+      )}
+
+      {showReviewForm && (
+        <ReviewPopup
+          selectedBooking={selectedBooking}
+          form={form}
+          submitting={submitting}
+          setShowReviewForm={setShowReviewForm}
+          handleRatingChange={handleRatingChange}
+          handleCommentChange={handleCommentChange}
+          handleImageChange={handleImageChange}
+          handleReviewSubmit={handleReviewSubmit}
+        />
       )}
     </div>
   );

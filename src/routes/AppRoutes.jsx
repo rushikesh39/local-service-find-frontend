@@ -6,6 +6,7 @@ import Home from "../pages/Home";
 import AboutUs from "../pages/AboutUs";
 import ContactUs from "../pages/ContactUs";
 import SearchResults from "../pages/SearchResults";
+import ErrorPage from "../pages/ErrorPage";
 
 // Auth Pages
 import Login from "../pages/Login";
@@ -32,8 +33,6 @@ import ProviderBookings from "../pages/provider/ProviderBookings";
 import ProviderNotFound from "../pages/provider/ProviderNotFound";
 import Profile from "../pages/Profile";
 import ProviderProfile from "../pages/provider/ProviderProfile";
-import ReviewForm from "../pages/ReviewForm";
-import ErrorPage from "../pages/ErrorPage";
 
 const AppRoutes = () => {
   return (
@@ -58,7 +57,6 @@ const AppRoutes = () => {
       <Route path="/service/:id" element={<ServiceDetail />} />
       <Route path="/book/:serviceId" element={<BookingModal />} />
       <Route path="/my-bookings" element={<MyBookings />} />      
-      <Route path="/review/:bookingId" element={<ReviewForm />} />
        <Route path="/profile" element={<Profile/>} />
 
       {/* Provider Dashboard - Protected Routes */}
