@@ -8,10 +8,8 @@ import {
   TableHead,
   TableRow,
   TablePagination,
-  IconButton,
   TextField,
   MenuItem,
-  Tooltip,
   Typography,
   Box,
   Button,
@@ -21,8 +19,10 @@ import { Check, Clock, XCircle, LoaderCircle, Search } from "lucide-react";
 import { getProviderBookings, updateBookingStatus } from "../../api/auth";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import Swal from "sweetalert2";
 
 const statuses = ["pending", "confirmed", "completed", "cancelled"];
+const providerEditableStatuses = ["confirmed", "cancelled"];
 
 const ProviderBookings = () => {
   const [bookings, setBookings] = useState([]);
@@ -49,15 +49,28 @@ const ProviderBookings = () => {
   };
 
   const handleStatusChange = async (bookingId, newStatus) => {
-    try {
-      await updateBookingStatus(bookingId, newStatus);
-      const updated = bookings.map((b) =>
-        b._id === bookingId ? { ...b, status: newStatus } : b
-      );
-      setBookings(updated);
-      filterBookings(search, dateFilter, statusFilter, updated);
-    } catch (err) {
-      console.error("Status update failed", err);
+    const result = await Swal.fire({
+      title: `Are you sure?`,
+      text: `You are about to mark this booking as "${newStatus}".`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, update it!",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await updateBookingStatus(bookingId, newStatus);
+        const updated = bookings.map((b) =>
+          b._id === bookingId ? { ...b, status: newStatus } : b
+        );
+        setBookings(updated);
+        filterBookings(search, dateFilter, statusFilter, updated);
+      } catch (err) {
+        console.error("Status update failed", err);
+        Swal.fire("Error", "Failed to update booking status.", "error");
+      }
     }
   };
 
@@ -81,13 +94,10 @@ const ProviderBookings = () => {
       const matchesSearch =
         booking.userId?.name?.toLowerCase().includes(lower) ||
         booking.serviceId?.name?.toLowerCase().includes(lower);
-
       const matchesDate = date
         ? new Date(booking.scheduledDate).toISOString().split("T")[0] === date
         : true;
-
       const matchesStatus = status ? booking.status === status : true;
-
       return matchesSearch && matchesDate && matchesStatus;
     });
 
@@ -141,6 +151,33 @@ const ProviderBookings = () => {
   useEffect(() => {
     fetchBookings();
   }, []);
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "pending":
+        return "orange";
+      case "confirmed":
+        return "#2563eb";
+      case "completed":
+        return "green";
+      case "cancelled":
+        return "red";
+      default:
+        return "gray";
+    }
+  };
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case "pending":
+        return <Clock size={16} className="text-yellow-500" />;
+      case "confirmed":
+        return <Check size={16} className="text-green-500" />;
+      case "cancelled":
+        return <XCircle size={16} className="text-red-500" />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <Paper className="p-4 mb-4">
@@ -247,37 +284,64 @@ const ProviderBookings = () => {
                         {new Date(booking.scheduledDate).toLocaleString()}
                       </TableCell>
                       <TableCell>{booking.address}</TableCell>
-                      <TableCell className="capitalize">
-                        {booking.status}
+                      <TableCell>
+                        <Box
+                          sx={{
+                            textTransform: "capitalize",
+                            color: "white",
+                            fontWeight: 600,
+                            borderRadius: 2,
+                            px: 1.5,
+                            py: 0.5,
+                            display: "inline-block",
+                            bgcolor: getStatusColor(booking.status),
+                          }}
+                        >
+                          {booking.status}
+                        </Box>
                       </TableCell>
                       <TableCell>
                         {new Date(booking.updatedAt).toLocaleString()}
                       </TableCell>
                       <TableCell>
-                        <TextField
-                          select
-                          value={booking.status}
-                          onChange={(e) =>
-                            handleStatusChange(booking._id, e.target.value)
-                          }
-                          size="small"
-                        >
-                          {statuses.map((status) => (
-                            <MenuItem key={status} value={status}>
-                              <Box className="flex items-center gap-1">
-                                {status === "pending" && <Clock size={14} />}
-                                {status === "confirmed" && <Check size={14} />}
-                                {status === "completed" && (
-                                  <LoaderCircle size={14} />
-                                )}
-                                {status === "cancelled" && (
-                                  <XCircle size={14} />
-                                )}
-                                {status}
-                              </Box>
-                            </MenuItem>
-                          ))}
-                        </TextField>
+                        {!["pending", "confirmed"].includes(booking.status)? (
+                          <Typography color="textSecondary">
+                            No Action
+                          </Typography>
+                        ) : (
+                          <TextField
+                            select
+                            size="small"
+                            value={booking.status}
+                            onChange={(e) =>
+                              handleStatusChange(booking._id, e.target.value)
+                            }
+                            variant="outlined"
+                            sx={{
+                              minWidth: 160,
+                              backgroundColor: "white",
+                              "& .MuiSelect-select": {
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "8px",
+                              },
+                            }}
+                            SelectProps={{
+                              displayEmpty: true,
+                              renderValue: (selected) =>
+                                selected ? selected : "Select",
+                            }}
+                          >
+                            {providerEditableStatuses.map((status) => (
+                              <MenuItem key={status} value={status}>
+                                <Box className="flex items-center gap-2 capitalize">
+                                  {getStatusIcon(status)}
+                                  {status}
+                                </Box>
+                              </MenuItem>
+                            ))}
+                          </TextField>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
