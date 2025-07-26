@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
-import { getServices, deleteServices } from "../../api/auth";
+import { getServices, updateStatus } from "../../api/auth";
 import { useSelector } from "react-redux";
 import SyncLoader from "react-spinners/SyncLoader";
-import { Pencil,Trash2  } from "lucide-react";
-
+import Swal from "sweetalert2";
 
 import {
   Paper,
@@ -15,7 +14,6 @@ import {
   TableHead,
   TableRow,
   TablePagination,
-  IconButton,
   Button,
   Typography,
   Tooltip,
@@ -43,15 +41,41 @@ const Services = () => {
     fetchServices();
   }, [providerId]);
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this service?")) return;
+  const handleUpdateServices = async (id, currentStatus) => {
+    const newStatus = currentStatus === "active" ? "Deactive" : "Active";
+
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: `Do you want to mark this service as ${newStatus}?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#2563eb",
+      cancelButtonColor: "#d33",
+      confirmButtonText: `Yes, mark as ${newStatus}`,
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
-      await deleteServices(id);
-      setServices((prev) => prev.filter((service) => service._id !== id));
-      alert("Service deleted successfully.");
+      const response = await updateStatus(id); 
+      const updatedStatus = response.status;
+
+      setServices((prev) =>
+        prev.map((service) =>
+          service._id === id ? { ...service, status: updatedStatus } : service
+        )
+      );
+
+      Swal.fire({
+        title: "Success!",
+        text: `Service is now ${updatedStatus}.`,
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+      });
     } catch (error) {
-      console.error("Delete failed:", error);
-      alert("Failed to delete service.");
+      console.error("Status update failed:", error);
+      Swal.fire("Error", "Failed to update service status.", "error");
     }
   };
 
@@ -100,7 +124,7 @@ const Services = () => {
                   <TableCell>Category</TableCell>
                   <TableCell>Price (₹)</TableCell>
                   <TableCell>Location</TableCell>
-                  <TableCell align="center">Actions</TableCell>
+                  <TableCell align="center">Status</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -124,18 +148,14 @@ const Services = () => {
                       <TableCell>{service.price}</TableCell>
                       <TableCell>{service.location}</TableCell>
                       <TableCell align="center">
-                        <IconButton
-                          color="primary"
-                          onClick={() => navigate(`update/${service._id}`)}
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          color={service.status === "active" ? "success" : "warning"}
+                          onClick={() => handleUpdateServices(service._id, service.status)}
                         >
-                          <Pencil className="w-5 h-5 text-blue-600 cursor-pointer" />
-                        </IconButton>
-                        <IconButton
-                          color="error"
-                          onClick={() => handleDelete(service._id)}
-                        >
-                          <Trash2 className="w-5 h-5 text-red-600 cursor-pointer" /> 
-                        </IconButton>
+                          {service.status === "active" ? "Activate" : "Deactivate"}
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}

@@ -28,7 +28,6 @@ import DashboardLayout from "../pages/provider/DashboardLayout";
 import ProviderDashboard from "../pages/provider/ProviderDashboard";
 import Services from "../pages/provider/Services";
 import AddNewService from "../pages/provider/AddNewService";
-import UpdateServiceForm from "../pages/provider/UpdateService";
 import ProviderBookings from "../pages/provider/ProviderBookings";
 import ProviderNotFound from "../pages/provider/ProviderNotFound";
 import Profile from "../pages/Profile";
@@ -71,7 +70,6 @@ const AppRoutes = () => {
         <Route index element={<ProviderDashboard />} />
         <Route path="services" element={<Services />} />
         <Route path="services/add-new-service" element={<AddNewService />} />
-        <Route path="services/update/:id" element={<UpdateServiceForm />} />
         <Route path="bookings" element={<ProviderBookings />} />
          <Route path="profile" element={<ProviderProfile />} />
         <Route path="*" element={<ProviderNotFound />} />

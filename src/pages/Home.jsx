@@ -4,7 +4,7 @@ import { MapPin, Wrench } from "lucide-react";
 import Swal from "sweetalert2";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import { popularServices } from "../api/auth";
+import { popularServices, topRatedServices } from "../api/auth";
 import ServiceCard from "./ServiceCard";
 
 const Home = () => {
@@ -12,22 +12,34 @@ const Home = () => {
   const [serviceQuery, setServiceQuery] = useState("");
   const [location, setLocation] = useState("");
   const [popular, setPopular] = useState([]);
+  const [topRated, setTopRated] = useState([]);
   const [loadingPopular, setLoadingPopular] = useState(true);
+  const [loadingTopRated, setLoadingTopRated] = useState(true);
 
   const loadPopularServices = async () => {
     try {
       const data = await popularServices();
       setPopular(data);
-      console.log(data)
     } catch (err) {
       console.error("Error fetching popular services", err);
     } finally {
       setLoadingPopular(false);
     }
   };
+  const loadTopRatedServices = async () => {
+    try {
+      const data = await topRatedServices();
+      setTopRated(data);
+    } catch (err) {
+      console.error("Error fetching popular services", err);
+    } finally {
+      setLoadingTopRated(false);
+    }
+  };
 
   useEffect(() => {
     loadPopularServices();
+    loadTopRatedServices();
   }, []);
 
   const handleSearch = (e) => {
@@ -159,32 +171,46 @@ const Home = () => {
       </section>
 
       {/* Top Rated Professionals Section */}
-      <section className="bg-white py-12 px-6">
-        <div className="max-w-7xl mx-auto">
+      <section className=" py-12 px-6">
+        <div className="max-w-7xl mx-auto ">
           <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">
             Top Rated Professionals
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {[1, 2, 3].map((provider) => (
-              <div
-                key={provider}
-                className="bg-gray-200 p-6 rounded-lg shadow hover:shadow-lg transition"
-              >
-                <img
-                  src="#"
-                  alt="Top Provider"
-                  className="h-24 w-24 mx-auto rounded-full mb-4"
-                />
-                <h3 className="text-xl font-semibold text-center text-gray-700">
-                  John Doe {provider}
-                </h3>
-                <p className="text-center text-sm text-gray-500">Electrician</p>
-                <div className="flex justify-center mt-2 text-yellow-500">
-                  ★★★★★
-                </div>
-              </div>
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl mx-auto ">
+            {loadingPopular
+              ? Array(4)
+                  .fill()
+                  .map((_, idx) => (
+                    <div
+                      key={idx}
+                      className="bg-white rounded-2xl shadow p-5 flex flex-col space-y-3 w-full"
+                    >
+                      <div className="w-full h-40">
+                        <Skeleton width="100%" height="100%" />
+                      </div>
+                      <div className="w-3/4 h-5">
+                        <Skeleton width="100%" height="100%" />
+                      </div>
+                      <div className="w-1/2 h-4">
+                        <Skeleton width="100%" height="100%" />
+                      </div>
+                      <div className="w-1/3 h-3">
+                        <Skeleton width="100%" height="100%" />
+                      </div>
+                      <div className="w-full h-10">
+                        <Skeleton width="100%" height="100%" />
+                      </div>
+                    </div>
+                  ))
+              : topRated.map((service) => (
+                  <ServiceCard
+                    key={service._id}
+                    service={service}
+                    onBookNow={handleBookNow}
+                    onServiceNow={handleCardClick}
+                  />
+                ))}
           </div>
         </div>
       </section>

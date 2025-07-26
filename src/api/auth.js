@@ -34,16 +34,8 @@ export const searchServices = async (query, location) => {
   });
   return response.data;
 };
-
-export const updateServices = async (serviceId, userData) => {
-  const response = await axiosInstance.put(
-    `/services/update/${serviceId}`,
-    userData
-  );
-  return response.data;
-};
-export const deleteServices = async (serviceId) => {
-  const response = await axiosInstance.delete(`/services/delete/${serviceId}`);
+export const updateStatus = async (serviceId) => {
+  const response = await axiosInstance.put(`/services/update-status/`,{serviceId});
   return response.data;
 };
 export const getServiceById = async (serviceId) => {
@@ -83,6 +75,10 @@ export const dashboardStats = async () => {
 };
 export const popularServices = async () => {
   const response = await axiosInstance.get(`services/popular-services`);
+  return response.data;
+};
+export const topRatedServices = async () => {
+  const response = await axiosInstance.get(`services/top-rated-services`);
   return response.data;
 };
 export const contact_us = async (userData) => {
