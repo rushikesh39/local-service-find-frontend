@@ -5,7 +5,7 @@ import Sidebar from "./Sidebar";
 
 const DashboardLayout = () => {
   return (
-    <div className="flex min-h-screen">
+    <div className="flex">
       {/* Hide Sidebar on screens smaller than lg (i.e., <1024px) */}
       <div className="hidden lg:block">
         <Sidebar />

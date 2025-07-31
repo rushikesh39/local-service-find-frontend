@@ -14,7 +14,7 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="w-64 min-h-screen bg-gradient-to-b from-slate-900 to-gray-800 text-white shadow-lg p-6">
+    <aside className="w-64 min-h-full bg-gradient-to-b from-slate-900 to-gray-800 text-white shadow-lg p-6">
       <ul className="space-y-4">
         {menuItems.map((item) => {
           const isActive = location.pathname === item.path;

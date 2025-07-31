@@ -1,5 +1,4 @@
 import axiosInstance from "./axiosInstance";
-// Sends signup data and receives backend-generated OTP or confirmation
 export const registerUser = async (userData) => {
   const response = await axiosInstance.post("/users/register", userData);
   return response.data; // Should contain backend OTP or message
