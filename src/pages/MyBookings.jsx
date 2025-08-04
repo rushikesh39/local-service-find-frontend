@@ -81,6 +81,9 @@ const MyBookings = () => {
     try {
       setSubmitting(true);
       await submitReview(formData);
+      const newStatus="completed";
+      await updateBookingStatus(selectedBooking?._id, newStatus);
+      fetchBookings();
       setShowReviewForm(false);
       Swal.fire({
         icon: "success",
@@ -88,7 +91,7 @@ const MyBookings = () => {
         text: "Your review has been submitted successfully.",
         confirmButtonColor: "#2563eb",
       });
-      fetchBookings();
+      
     } catch (err) {
       console.error("Failed to submit review", err);
       Swal.fire({
