@@ -17,6 +17,7 @@ import {
   Button,
   Typography,
   Tooltip,
+  Box,
 } from "@mui/material";
 
 const Services = () => {
@@ -57,7 +58,7 @@ const Services = () => {
     if (!result.isConfirmed) return;
 
     try {
-      const response = await updateStatus(id); 
+      const response = await updateStatus(id);
       const updatedStatus = response.status;
 
       setServices((prev) =>
@@ -87,15 +88,15 @@ const Services = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="flex justify-center items-center min-h-[80vh]">
         <SyncLoader color="#2563eb" size={15} />
       </div>
     );
   }
 
   return (
-    <div className="p-4 min-h-[70vh] bg-gray-50">
-      <div className="flex justify-between items-center mb-4">
+    <div className="p-4 min-h-[85vh] bg-gray-50">
+      <div className="flex flex-wrap justify-between items-center mb-4 gap-2">
         <Typography variant="h5" fontWeight="bold">
           My Services
         </Typography>
@@ -115,53 +116,72 @@ const Services = () => {
         </Typography>
       ) : (
         <Paper sx={{ width: "100%", overflow: "hidden" }}>
-          <TableContainer sx={{ maxHeight: 500 }}>
-            <Table stickyHeader>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Image</TableCell>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Category</TableCell>
-                  <TableCell>Price (₹)</TableCell>
-                  <TableCell>Location</TableCell>
-                  <TableCell align="center">Status</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {services
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((service) => (
-                    <TableRow hover key={service._id}>
-                      <TableCell>
-                        <img
-                          src={service.image}
-                          alt={service.name}
-                          className="w-16 h-16 object-cover rounded border"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Tooltip title={service.description || "No description"}>
-                          <span>{service.name}</span>
-                        </Tooltip>
-                      </TableCell>
-                      <TableCell>{service.category}</TableCell>
-                      <TableCell>{service.price}</TableCell>
-                      <TableCell>{service.location}</TableCell>
-                      <TableCell align="center">
-                        <Button
-                          variant="outlined"
-                          size="small"
-                          color={service.status === "active" ? "success" : "warning"}
-                          onClick={() => handleUpdateServices(service._id, service.status)}
-                        >
-                          {service.status === "active" ? "Activate" : "Deactivate"}
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+          {/* ✅ Scroll container for mobile responsiveness */}
+          <Box sx={{ width: "100%", overflowX: "auto" }}>
+            <TableContainer sx={{ maxHeight: 400, overflowY: "auto" }}>
+              <Table stickyHeader aria-label="services table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Image</TableCell>
+                    <TableCell>Name</TableCell>
+                    <TableCell>Category</TableCell>
+                    <TableCell>Price (₹)</TableCell>
+                    <TableCell>Location</TableCell>
+                    <TableCell align="center">Status</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {services
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((service) => (
+                      <TableRow
+                        hover
+                        key={service._id}
+                        sx={{
+                          "& td": { whiteSpace: "nowrap" },
+                        }}
+                      >
+                        <TableCell>
+                          <img
+                            src={service.image}
+                            alt={service.name}
+                            className="w-16 h-16 object-cover rounded border border-gray-300"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Tooltip
+                            title={service.description || "No description"}
+                          >
+                            <span>{service.name}</span>
+                          </Tooltip>
+                        </TableCell>
+                        <TableCell>{service.category}</TableCell>
+                        <TableCell>{service.price}</TableCell>
+                        <TableCell>{service.location}</TableCell>
+                        <TableCell align="center">
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            color={
+                              service.status === "active"
+                                ? "success"
+                                : "warning"
+                            }
+                            onClick={() =>
+                              handleUpdateServices(service._id, service.status)
+                            }
+                          >
+                            {service.status === "active"
+                              ? "Activate"
+                              : "Deactivate"}
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
           <TablePagination
             component="div"
             count={services.length}

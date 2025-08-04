@@ -101,7 +101,7 @@ const VerifyOtp = () => {
   };
 
   return (
-    <div className="min-h-[70vh] m-2 flex justify-center items-center bg-gray-100">
+    <div className="min-h-[85vh] m-2 flex justify-center items-center bg-gray-100">
       <form
         onSubmit={handleVerify}
         className="bg-white p-8 rounded shadow-md w-full max-w-md"

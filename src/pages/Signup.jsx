@@ -107,7 +107,7 @@ const Signup = () => {
           <input
             type="text"
             name="email"
-            placeholder="Email or Mobile"
+            placeholder="Email"
             value={form.email}
             onChange={handleChange}
             className="w-full p-3 border rounded"

@@ -177,14 +177,17 @@ const AddServiceForm = () => {
             type="text"
             name="serviceSearch"
             value={searchTerm}
-            onChange={handleChange}
+            onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search service type..."
             className="w-full border border-gray-300 rounded-md p-2 mb-1"
           />
           <select
             name="type"
             value={formData.type}
-            onChange={handleChange}
+            onChange={(e) => {
+              setFormData((prev) => ({ ...prev, type: e.target.value }));
+              setSearchTerm(selectedValue); 
+            }}
             className="w-full border border-gray-300 rounded-md p-2"
             required
           >
@@ -196,6 +199,11 @@ const AddServiceForm = () => {
                 {option.label}
               </option>
             ))}
+
+            {!filteredOptions.find((opt) => opt.value === formData.type) &&
+              formData.type && (
+                <option value={formData.type}>{formData.type}</option>
+              )}
           </select>
         </div>
 
@@ -283,7 +291,7 @@ const AddServiceForm = () => {
       <button
         type="submit"
         disabled={loading}
-        className="mt-6 w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition disabled:opacity-50"
+        className="mt-6 w-full cursor-pointer bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition disabled:opacity-50"
       >
         {loading ? "Adding Service..." : "Add Service"}
       </button>

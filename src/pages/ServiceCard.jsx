@@ -107,7 +107,7 @@ const ServiceCard = ({ service, onBookNow, onServiceNow }) => {
       </div>
 
       <button
-        className="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+        className="mt-4 w-full cursor-pointer bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
         onClick={() => onBookNow(service)}
       >
         Book Now

@@ -11,6 +11,8 @@ const BookingPage = () => {
   const services = useSelector((state) => state.services.services);
   const service = services.find((s) => s._id === serviceId);
 
+  const [isSubmitting, setIsSubmitting] = useState(false); // ✅ New state
+
   useEffect(() => {
     if (!service) {
       navigate("/services");
@@ -28,6 +30,9 @@ const BookingPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return; // ✅ Prevent multiple clicks
+
+    setIsSubmitting(true);
 
     try {
       await createBooking({
@@ -56,6 +61,8 @@ const BookingPage = () => {
         text: "Something went wrong. Please try again.",
         confirmButtonColor: "#ef4444",
       });
+
+      setIsSubmitting(false); // ✅ Re-enable button on failure
     }
   };
 
@@ -64,7 +71,9 @@ const BookingPage = () => {
   return (
     <div className="min-h-screen bg-gray-100 py-12 px-4">
       <div className="max-w-xl mx-auto bg-white rounded-xl p-8 shadow-md">
-        <h2 className="text-2xl font-bold text-center mb-6">Book {service.name}</h2>
+        <h2 className="text-2xl font-bold text-center mb-6">
+          Book {service.name}
+        </h2>
         <form onSubmit={handleSubmit} className="space-y-6">
           <input
             type="text"
@@ -113,15 +122,20 @@ const BookingPage = () => {
             <button
               type="button"
               onClick={() => navigate(-1)}
-              className="px-6 py-3 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+              className="px-6 py-3 cursor-pointer bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700"
+              disabled={isSubmitting}
+              className={`px-6 py-3 rounded cursor-pointer text-white transition ${
+                isSubmitting
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700"
+              }`}
             >
-              Confirm Booking
+              {isSubmitting ? "Booking..." : "Book Now"}
             </button>
           </div>
         </form>
