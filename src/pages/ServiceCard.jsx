@@ -96,6 +96,7 @@ const ServiceCard = ({ service, onBookNow, onServiceNow }) => {
           className="w-full h-40 object-cover rounded-md mb-4"
         />
         <h2 className="text-xl font-semibold">{service.name}</h2>
+        <h2 className="">{service.category}</h2>
         <p className="text-gray-600">{service.location}</p>
         <div className="flex justify-between items-center mt-2">
           {renderStars(service.rating)}
