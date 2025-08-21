@@ -38,9 +38,7 @@ export const updateStatus = async (serviceId) => {
   return response.data;
 };
 export const getServiceById = async (serviceId) => {
-  const response = await axiosInstance.get(
-    `services/provider/service/${serviceId}`
-  );
+  const response = await axiosInstance.get(`services/${serviceId}`);
   return response.data;
 };
 export const getProviderBookings = async () => {
@@ -55,6 +53,7 @@ export const servicesList = async () => {
   const response = await axiosInstance.get(`services`);
   return response.data;
 };
+
 export const createBooking = async ({serviceId, name, mobile, scheduledDate, address, notes,}) => {
   const response = await axiosInstance.post(`booking/book`, {serviceId, name, mobile,scheduledDate,  address,notes});
   return response.data;

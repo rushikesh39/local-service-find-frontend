@@ -1,25 +1,36 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
 import HashLoader from "react-spinners/HashLoader";
+import { getServiceById } from "../api/auth"; // ✅ correct file
 
 const ServiceDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const services = useSelector((state) => state.services.services);
-  const user = useSelector((state) => state.user.user);
 
-  console.log(services)
   const [service, setService] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const found = services.find((s) => s._id === id);
-    setService(found || null);
-    setLoading(false);
-  }, [id, services]);
+    const fetchService = async () => {
+      setLoading(true);
+      setError("");
+      try {
+        const data = await getServiceById(id);
+        setService(data.service);
+        console.log(data)
+      } catch (err) {
+        setError(err.message || "Failed to load service.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) fetchService();
+  }, [id]);
 
   const handleBookNow = () => {
+    const user = JSON.parse(localStorage.getItem("user"));
     if (!user) {
       alert("You must be logged in to book this service.");
       navigate("/login");
@@ -36,6 +47,14 @@ const ServiceDetail = () => {
     );
   }
 
+  if (error) {
+    return (
+      <div className="text-center mt-10 text-red-600 min-h-[90vh]">
+        {error}
+      </div>
+    );
+  }
+
   if (!service) {
     return (
       <div className="text-center mt-10 text-red-600 min-h-[90vh]">
@@ -46,6 +65,7 @@ const ServiceDetail = () => {
 
   return (
     <div className="max-w-5xl min-h-[85vh] mx-auto p-6 bg-white rounded-2xl shadow-lg mt-10 mb-10 flex flex-col md:flex-row gap-8">
+      {/* Left Section */}
       <div className="md:w-1/2">
         <img
           src={service.image}
@@ -60,22 +80,28 @@ const ServiceDetail = () => {
         </button>
       </div>
 
-      <div className="md:w-1/2 flex flex-col ">
-        <div>
-          <h1 className="text-3xl font-bold mb-4 text-gray-800">{service.name}</h1>
-          <p className="text-gray-600 mb-2">
-            <strong>Location:</strong> {service.location}
-          </p>
-          <p className="text-gray-600 mb-2">
-            <strong>Category:</strong> {service.category}
-          </p>
-          <p className="text-gray-600 mb-4">
-            <strong>Price:</strong> ₹{service.price}
-          </p>
-          <p className="text-gray-700 whitespace-pre-line">{service.description}</p>
-        </div>
+      {/* Right Section */}
+      <div className="md:w-1/2 flex flex-col">
+        <h1 className="text-3xl font-bold mb-4 text-gray-800">{service.name}</h1>
+        <p className="text-gray-600 mb-2">
+          <strong>Location:</strong> {service.location}
+        </p>
+        <p className="text-gray-600 mb-2">
+          <strong>Category:</strong> {service.category}
+        </p>
+        <p className="text-gray-600 mb-2">
+          <strong>Price:</strong> ₹{service.price}
+        </p>
 
-        
+        {/* Show Ratings if backend sends them */}
+        {service.averageRating !== undefined && (
+          <p className="text-gray-600 mb-4">
+            <strong>Rating:</strong> {service.averageRating} ⭐ (
+            {service.totalReviews} reviews)
+          </p>
+        )}
+
+        <p className="text-gray-700 whitespace-pre-line">{service.description}</p>
       </div>
     </div>
   );
