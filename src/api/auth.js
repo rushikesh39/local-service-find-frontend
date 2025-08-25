@@ -38,7 +38,7 @@ export const updateStatus = async (serviceId) => {
   return response.data;
 };
 export const getServiceById = async (serviceId) => {
-  const response = await axiosInstance.get(`services/${serviceId}`);
+  const response = await axiosInstance.get(`services/details/${serviceId}`);
   return response.data;
 };
 export const getProviderBookings = async () => {
