@@ -42,13 +42,15 @@ const ServiceCard = ({ service, onBookNow, onServiceNow }) => {
       } else if (i === fullStars + 1 && fillPercent > 0) {
         // Partial star with gradient
         stars.push(
-          <svg
-            key={i}
-            className="w-5 h-5 text-yellow-500"
-            viewBox="0 0 24 24"
-          >
+          <svg key={i} className="w-5 h-5 text-yellow-500" viewBox="0 0 24 24">
             <defs>
-              <linearGradient id={`grad-${rating}`} x1="0%" y1="0%" x2="100%" y2="0%">
+              <linearGradient
+                id={`grad-${rating}`}
+                x1="0%"
+                y1="0%"
+                x2="100%"
+                y2="0%"
+              >
                 <stop offset={`${fillPercent}%`} stopColor="#facc15" />
                 <stop offset={`${fillPercent}%`} stopColor="#e5e7eb" />
               </linearGradient>
@@ -97,7 +99,11 @@ const ServiceCard = ({ service, onBookNow, onServiceNow }) => {
         />
         <h2 className="text-xl font-semibold">{service.name}</h2>
         <h2 className="">{service.category}</h2>
-        <p className="text-gray-600">{service.location}</p>
+        <p className="text-gray-600">
+          {typeof service.location === "string"
+            ? service.location
+            : service.location?.address}
+        </p>
         <div className="flex justify-between items-center mt-2">
           {renderStars(service.rating)}
           <span className="flex items-center gap-1 text-black font-medium">

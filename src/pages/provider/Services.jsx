@@ -33,6 +33,7 @@ const Services = () => {
       try {
         const data = await getServices(providerId);
         setServices(data.services);
+        console.log(data.services);
       } catch (error) {
         console.error("Failed to fetch services:", error);
       } finally {
@@ -157,7 +158,11 @@ const Services = () => {
                         </TableCell>
                         <TableCell>{service.category}</TableCell>
                         <TableCell>{service.price}</TableCell>
-                        <TableCell>{service.location}</TableCell>
+                        <TableCell>
+                          {typeof service.location === "string"
+                            ? service.location
+                            : service.location?.address}
+                        </TableCell>
                         <TableCell align="center">
                           <Button
                             variant="outlined"

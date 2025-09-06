@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { addNewServices } from "../../api/auth";
 import Swal from "sweetalert2";
-import { Upload, X } from "lucide-react";
+import { Upload, X, MapPin } from "lucide-react";
 
 const serviceOptions = [
   { value: "AC Repair", label: "AC Repair" },
@@ -47,11 +47,12 @@ const serviceOptions = [
 const AddServiceForm = () => {
   const [formData, setFormData] = useState({
     name: "",
-    type: "",
-    location: "",
+    category: "",
     description: "",
     price: "",
     image: null,
+    coordinates: null, // [lng, lat]
+    address: "",
   });
 
   const [error, setError] = useState("");
@@ -63,6 +64,39 @@ const AddServiceForm = () => {
     option.label.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // ✅ Get user location + reverse geocode
+  const handleGetLocation = () => {
+    if (!navigator.geolocation) {
+      return setError("Geolocation is not supported by your browser.");
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+
+        try {
+          // Reverse Geocoding with OpenStreetMap Nominatim
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+          );
+          const data = await res.json();
+
+          setFormData((prev) => ({
+            ...prev,
+            coordinates: [longitude, latitude],
+            address: data.display_name || "Unknown Address",
+          }));
+          setError("");
+        } catch (err) {
+          setError("Failed to fetch address. Please try again.");
+        }
+      },
+      (err) => {
+        setError("Unable to fetch location. Please allow location access.");
+      }
+    );
+  };
+
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
@@ -73,11 +107,10 @@ const AddServiceForm = () => {
         return setError("File must be an image.");
       if (file.size > 2 * 1024 * 1024)
         return setError("Image must be less than 2MB.");
-
       setFormData((prev) => ({ ...prev, image: file }));
       setError("");
-    } else if (name === "type") {
-      setFormData((prev) => ({ ...prev, type: value }));
+    } else if (name === "category") {
+      setFormData((prev) => ({ ...prev, category: value }));
       setSearchTerm("");
     } else if (name === "serviceSearch") {
       setSearchTerm(value);
@@ -88,10 +121,10 @@ const AddServiceForm = () => {
   };
 
   const validateInputs = () => {
-    const { name, type, location, description, price, image } = formData;
+    const { name, category, description, price, image, coordinates } = formData;
     if (!name.trim()) return "Service name is required.";
-    if (!type.trim()) return "Service type is required.";
-    if (!location.trim()) return "Location is required.";
+    if (!category.trim()) return "Service category is required.";
+    if (!coordinates) return "Please fetch your location.";
     if (!description.trim()) return "Description is required.";
     if (!price || Number(price) <= 0) return "Price must be a positive number.";
     if (!image) return "Service image is required.";
@@ -109,11 +142,12 @@ const AddServiceForm = () => {
     try {
       const serviceData = new FormData();
       serviceData.append("name", formData.name.trim());
-      serviceData.append("category", formData.type.trim());
-      serviceData.append("location", formData.location.trim());
+      serviceData.append("category", formData.category.trim());
       serviceData.append("description", formData.description.trim());
       serviceData.append("price", formData.price);
       serviceData.append("image", formData.image);
+      serviceData.append("coordinates", JSON.stringify(formData.coordinates));
+      serviceData.append("address", formData.address);
 
       await addNewServices(serviceData);
 
@@ -122,9 +156,7 @@ const AddServiceForm = () => {
         text: "Service added successfully.",
         icon: "success",
         confirmButtonText: "Go to My Services",
-      }).then(() => {
-        navigate("/provider/services");
-      });
+      }).then(() => navigate("/provider/services"));
     } catch (err) {
       const msg =
         err.response?.data?.error ||
@@ -156,6 +188,7 @@ const AddServiceForm = () => {
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Service Name */}
         <div>
           <label className="block text-sm font-medium mb-1">Service Name</label>
           <input
@@ -169,25 +202,23 @@ const AddServiceForm = () => {
           />
         </div>
 
+        {/* Service Category with Search */}
         <div>
           <label className="block text-sm font-medium mb-1">
-            Search Service Type
+            Search Service Category
           </label>
           <input
             type="text"
             name="serviceSearch"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search service type..."
+            placeholder="Search service category..."
             className="w-full border border-gray-300 rounded-md p-2 mb-1"
           />
           <select
-            name="type"
-            value={formData.type}
-            onChange={(e) => {
-              setFormData((prev) => ({ ...prev, type: e.target.value }));
-              setSearchTerm(selectedValue); 
-            }}
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
             className="w-full border border-gray-300 rounded-md p-2"
             required
           >
@@ -200,26 +231,41 @@ const AddServiceForm = () => {
               </option>
             ))}
 
-            {!filteredOptions.find((opt) => opt.value === formData.type) &&
-              formData.type && (
-                <option value={formData.type}>{formData.type}</option>
+            {!filteredOptions.find((opt) => opt.value === formData.category) &&
+              formData.category && (
+                <option value={formData.category}>{formData.category}</option>
               )}
           </select>
         </div>
 
+        {/* Location (Auto Detect) */}
         <div>
-          <label className="block text-sm font-medium mb-1">Location</label>
-          <input
-            type="text"
-            name="location"
-            value={formData.location}
-            onChange={handleChange}
-            placeholder="e.g. Pune"
-            className="w-full border border-gray-300 rounded-md p-2"
-            required
-          />
+          {/* Address Input */}
+          <div className="flex flex-col">
+            <label className="block text-sm font-medium mb-1">
+              Service Location
+            </label>
+            <input
+               type="text"
+    name="address"
+    value={formData.address}
+    onChange={handleChange}
+    placeholder="Enter or click Get Location"
+    className="w-full border border-gray-300 rounded-md p-2 text-sm"
+            />
+          </div>
+        </div>
+        <div>
+          <button
+            type="button"
+            onClick={handleGetLocation}
+            className="w-full flex items-center justify-center gap-2 bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-2 rounded-md text-sm mt-6"
+          >
+            <MapPin className="w-4 h-4" /> Get Location
+          </button>
         </div>
 
+        {/* Price */}
         <div>
           <label className="block text-sm font-medium mb-1">Price (₹)</label>
           <input
@@ -234,6 +280,7 @@ const AddServiceForm = () => {
           />
         </div>
 
+        {/* Description */}
         <div className="sm:col-span-2">
           <label className="block text-sm font-medium mb-1">Description</label>
           <textarea
@@ -247,6 +294,7 @@ const AddServiceForm = () => {
           />
         </div>
 
+        {/* Service Image */}
         <div className="sm:col-span-2">
           <label className="block text-sm font-medium mb-1">
             Service Image
