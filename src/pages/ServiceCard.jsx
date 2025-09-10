@@ -28,7 +28,6 @@ const ServiceCard = ({ service, onBookNow, onServiceNow }) => {
 
     for (let i = 1; i <= totalStars; i++) {
       if (i <= fullStars) {
-        // Full star
         stars.push(
           <svg
             key={i}
@@ -40,7 +39,6 @@ const ServiceCard = ({ service, onBookNow, onServiceNow }) => {
           </svg>
         );
       } else if (i === fullStars + 1 && fillPercent > 0) {
-        // Partial star with gradient
         stars.push(
           <svg key={i} className="w-5 h-5 text-yellow-500" viewBox="0 0 24 24">
             <defs>
@@ -62,7 +60,6 @@ const ServiceCard = ({ service, onBookNow, onServiceNow }) => {
           </svg>
         );
       } else {
-        // Empty star
         stars.push(
           <svg
             key={i}
@@ -86,6 +83,20 @@ const ServiceCard = ({ service, onBookNow, onServiceNow }) => {
     );
   };
 
+  // ✅ Format address: only first two comma parts + "..."
+  const formatAddress = (addr) => {
+    if (!addr) return "";
+    const parts = addr.split(",");
+    return parts.length > 2
+      ? `${parts[0].trim()}, ${parts[1].trim()} ...`
+      : addr;
+  };
+
+  const fullAddress =
+    typeof service.location === "string"
+      ? service.location
+      : service.location?.address || "";
+
   return (
     <div className="bg-white rounded-lg shadow p-4">
       <div
@@ -99,11 +110,15 @@ const ServiceCard = ({ service, onBookNow, onServiceNow }) => {
         />
         <h2 className="text-xl font-semibold">{service.name}</h2>
         <h2 className="">{service.category}</h2>
-        <p className="text-gray-600">
-          {typeof service.location === "string"
-            ? service.location
-            : service.location?.address}
+
+        {/* Address with tooltip */}
+        <p
+          className="text-gray-600"
+          title={fullAddress} // hover tooltip
+        >
+          {formatAddress(fullAddress)}
         </p>
+
         <div className="flex justify-between items-center mt-2">
           {renderStars(service.rating)}
           <span className="flex items-center gap-1 text-black font-medium">

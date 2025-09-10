@@ -51,11 +51,12 @@ const AddServiceForm = () => {
     description: "",
     price: "",
     image: null,
-    coordinates: null, // [lng, lat]
+    coordinates: null,
     address: "",
   });
 
   const [error, setError] = useState("");
+  const [locating, setLocating] = useState(false);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
@@ -69,7 +70,7 @@ const AddServiceForm = () => {
     if (!navigator.geolocation) {
       return setError("Geolocation is not supported by your browser.");
     }
-
+    setLocating(true);
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const { latitude, longitude } = pos.coords;
@@ -87,13 +88,17 @@ const AddServiceForm = () => {
             address: data.display_name || "Unknown Address",
           }));
           setError("");
+           setLocating(false);
         } catch (err) {
           setError("Failed to fetch address. Please try again.");
+          setLocating(false);
         }
       },
       (err) => {
         setError("Unable to fetch location. Please allow location access.");
-      }
+        setLocating(false);
+      },
+      { enableHighAccuracy: true }
     );
   };
 
@@ -246,12 +251,12 @@ const AddServiceForm = () => {
               Service Location
             </label>
             <input
-               type="text"
-    name="address"
-    value={formData.address}
-    onChange={handleChange}
-    placeholder="Enter or click Get Location"
-    className="w-full border border-gray-300 rounded-md p-2 text-sm"
+              type="text"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              placeholder="Enter or click Get Location"
+              className="w-full border border-gray-300 rounded-md p-2 text-sm"
             />
           </div>
         </div>
@@ -259,9 +264,17 @@ const AddServiceForm = () => {
           <button
             type="button"
             onClick={handleGetLocation}
-            className="w-full flex items-center justify-center gap-2 bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-2 rounded-md text-sm mt-6"
+            disabled={locating} // ✅ Disable during fetch
+            className={`w-full flex items-center justify-center gap-2 
+    ${
+      locating
+        ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+        : "bg-blue-100 hover:bg-blue-200 text-blue-700"
+    } 
+    px-3 py-2 rounded-md text-sm mt-6`}
           >
-            <MapPin className="w-4 h-4" /> Get Location
+            <MapPin className="w-4 h-4" />
+            {locating ? "Fetching Location..." : "Get Location"}
           </button>
         </div>
 

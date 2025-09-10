@@ -206,7 +206,9 @@ const ServiceDetail = () => {
 
           {/* Location */}
           <div className="flex items-center gap-2 text-gray-700">
-            <MapPin className="w-5 h-5 text-red-500" /> {service.location}
+            <MapPin className="w-5 h-5 text-red-500" /> {typeof service.location === "string"
+            ? service.location
+            : service.location?.address}
           </div>
 
           {/* Price */}
