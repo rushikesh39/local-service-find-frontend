@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { searchServices } from "../api/auth";
-import HashLoader from "react-spinners/HashLoader";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import ServiceCard from "./ServiceCard";
@@ -10,8 +9,9 @@ import ServiceCard from "./ServiceCard";
 const SearchResults = () => {
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
-  const location = queryParams.get("location");
   const query = queryParams.get("query");
+  const lat = queryParams.get("lat");
+  const lng = queryParams.get("lng");
 
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,10 +19,11 @@ const SearchResults = () => {
   useEffect(() => {
     const fetchResults = async () => {
       try {
+        console.log(query,lat,lng)
         setLoading(true);
-        const res = await searchServices(query, location);
+        const res = await searchServices(query);
         console.log("search result", res);
-        setResults(res || []);
+        setResults(res);
       } catch (error) {
         console.error("Search failed:", error);
       } finally {
@@ -35,9 +36,6 @@ const SearchResults = () => {
 
   return (
     <div className="min-h-screen px-4 py-10 bg-gray-50">
-      {/* <h2 className="text-2xl font-semibold text-center mb-6">
-        Search Results for "{query}" in "{location}"
-      </h2> */}
 
       {loading ? (
         // 🔹 Skeleton Loader Grid

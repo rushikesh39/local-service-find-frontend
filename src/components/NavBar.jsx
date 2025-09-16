@@ -9,11 +9,15 @@ import {
   Wrench,
   PlusCircle,
   ClipboardList,
+  Search,
+  MapPin,
 } from "lucide-react";
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const dropdownRef = useRef(null);
 
   const user = useSelector((state) => state.user.user);
@@ -42,17 +46,74 @@ const Navbar = () => {
     navigate(path);
   };
 
+   const handleSearch = (e) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          navigate(
+            `/search-results?query=${encodeURIComponent(
+              searchQuery
+            )}&lat=${lat}&lng=${lng}`
+          );
+        },
+        () => {
+          // ❌ If location denied → fallback to query-only search
+          navigate(`/search-results?query=${encodeURIComponent(searchQuery)}`);
+        }
+      );
+    } else {
+      // If geolocation not supported
+      navigate(`/search-results?query=${encodeURIComponent(searchQuery)}`);
+    }
+  };
+
   const avatarInitial = user?.name ? user.name.charAt(0).toUpperCase() : "";
 
   return (
     <nav className="bg-white shadow-md z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
+          {/* Logo */}
           <NavLink to="/" className="text-2xl font-bold text-blue-600">
             <img src="../main-logo.png" alt="Locafy" className="w-40" />
           </NavLink>
 
-          <div className="md:hidden">
+          {/* Desktop Search Bar */}
+          <form
+            onSubmit={handleSearch}
+            className="hidden md:flex flex-1 max-w-lg mx-6"
+          >
+            <div className="relative w-full">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search services near you..."
+                className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+              <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
+              <button
+                type="submit"
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 text-white px-3 py-1 rounded-full hover:bg-blue-700"
+              >
+                Go
+              </button>
+            </div>
+          </form>
+
+          {/* Mobile Icons */}
+          <div className="flex items-center gap-3 md:hidden">
+            <button
+              onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
+              className="text-gray-700 hover:text-blue-600"
+            >
+              <Search className="w-6 h-6" />
+            </button>
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="text-gray-800 hover:text-blue-600 focus:outline-none"
@@ -83,6 +144,7 @@ const Navbar = () => {
             </button>
           </div>
 
+          {/* Desktop Menu */}
           <div className="hidden md:flex md:items-center md:space-x-6">
             <NavLink to="/" className="text-gray-700 hover:text-blue-600">
               Home
@@ -93,23 +155,23 @@ const Navbar = () => {
             >
               Services
             </NavLink>
-
             <NavLink
               to="/about-us"
               className="text-gray-700 hover:text-blue-600"
             >
-              About US
+              About Us
             </NavLink>
             <NavLink
               to="/contact-us"
               className="text-gray-700 hover:text-blue-600"
             >
-              contact Us
+              Contact Us
             </NavLink>
+
             {user?.role === "provider" && (
               <NavLink
                 to="/provider"
-                className="text-gray-700 font-semibold font-semibold hover:text-blue-600"
+                className="text-gray-700 font-semibold hover:text-blue-600"
               >
                 Dashboard
               </NavLink>
@@ -139,7 +201,6 @@ const Navbar = () => {
                       <UserCircle className="w-4 h-4 mr-2 text-gray-700" />
                       My Info
                     </button>
-
                     {user?.role === "provider" && (
                       <>
                         <div className="border-t my-2 border-gray-100" />
@@ -151,7 +212,11 @@ const Navbar = () => {
                           Dashboard
                         </button>
                         <button
-                          onClick={() => handleNavigate("/provider/services/add-new-service")}
+                          onClick={() =>
+                            handleNavigate(
+                              "/provider/services/add-new-service"
+                            )
+                          }
                           className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100"
                         >
                           <PlusCircle className="w-4 h-4 mr-2 text-green-600" />
@@ -166,7 +231,6 @@ const Navbar = () => {
                         </button>
                       </>
                     )}
-
                     <div className="border-t my-2 border-gray-100" />
                     <button
                       onClick={handleLogout}
@@ -182,7 +246,7 @@ const Navbar = () => {
               <>
                 <NavLink
                   to="/signup"
-                  className="border-2 border-blue-600 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-700 hover:text-white px-4 transition"
+                  className="border-2 border-blue-600 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-700 hover:text-white transition"
                 >
                   Sign Up
                 </NavLink>
@@ -197,6 +261,31 @@ const Navbar = () => {
           </div>
         </div>
       </div>
+
+      {/* Mobile Search Bar */}
+      {isMobileSearchOpen && (
+        <form
+          onSubmit={handleSearch}
+          className="md:hidden px-4 pb-3 bg-white shadow-inner"
+        >
+          <div className="relative">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search services near you..."
+              className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+            <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
+            <button
+              type="submit"
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 text-white px-3 py-1 rounded-full hover:bg-blue-700"
+            >
+              Go
+            </button>
+          </div>
+        </form>
+      )}
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
@@ -255,7 +344,6 @@ const Navbar = () => {
                 <UserCircle className="w-5 h-5 mr-2 text-gray-700" />
                 My Info
               </button>
-
               {user?.role === "provider" && (
                 <>
                   <button
@@ -266,7 +354,9 @@ const Navbar = () => {
                     Dashboard
                   </button>
                   <button
-                    onClick={() => handleNavigate("/provider/services/add-new-service")}
+                    onClick={() =>
+                      handleNavigate("/provider/services/add-new-service")
+                    }
                     className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100"
                   >
                     <PlusCircle className="w-5 h-5 mr-2 text-green-600" />
@@ -281,7 +371,6 @@ const Navbar = () => {
                   </button>
                 </>
               )}
-
               <button
                 onClick={handleLogout}
                 className="flex items-center w-full px-4 py-2 text-red-600 hover:bg-red-50"

@@ -27,9 +27,9 @@ export const getServices = async (providerId) => {
   const response = await axiosInstance.get(`/services/provider/${providerId}`);
   return response.data;
 };
-export const searchServices = async (query, location) => {
-  const response = await axiosInstance.get(`/providers/search`, {
-    params: {location, query,},
+export const searchServices = async (query,lat,lng) => {
+  const response = await axiosInstance.get(`/search`, {
+    params: {query,lat,lng},
   });
   return response.data;
 };

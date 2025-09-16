@@ -42,25 +42,7 @@ const Home = () => {
     loadTopRatedServices();
   }, []);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-
-    if (!serviceQuery.trim() || !location.trim()) {
-      Swal.fire({
-        icon: "warning",
-        title: "Missing Input",
-        text: "Please enter both service and location to search.",
-        confirmButtonColor: "#3085d6",
-      });
-      return;
-    }
-
-    navigate(
-      `/search-results?location=${encodeURIComponent(
-        location
-      )}&query=${encodeURIComponent(serviceQuery)}`
-    );
-  };
+  
 
   const handleBookNow = (service) => {
     navigate(`/book/${service._id}`);
@@ -82,40 +64,6 @@ const Home = () => {
             Connect with trusted professionals for your home, office, and
             personal needs.
           </p>
-
-          {/* Search Bar */}
-          <form
-            onSubmit={handleSearch}
-            className="flex flex-col sm:flex-row items-center justify-center max-w-3xl mx-auto mt-8 gap-y-3 sm:gap-x-3"
-          >
-            <div className="relative w-full">
-              <input
-                type="text"
-                placeholder="Service (e.g. plumber, electrician)"
-                value={serviceQuery}
-                onChange={(e) => setServiceQuery(e.target.value)}
-                className="w-full px-5 py-3 pl-12 rounded-full text-gray-800 shadow focus:outline-none focus:ring-1 focus:ring-blue-800 bg-white"
-              />
-              <Wrench className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-            </div>
-            <div className="relative w-full">
-              <input
-                type="text"
-                placeholder="Location (e.g. Pune)"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                className="w-full px-5 py-3 pl-12 rounded-full text-gray-800 shadow focus:outline-none focus:ring-1 focus:ring-blue-800 bg-white"
-              />
-              <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-            </div>
-            <button
-              type="submit"
-              className="px-6 py-3 rounded-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold shadow"
-            >
-              Search
-            </button>
-          </form>
-
           <div className="mt-8">
             <Link
               to="/services"
