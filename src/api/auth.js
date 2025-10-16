@@ -4,14 +4,13 @@ export const registerUser = async (userData) => {
   return response.data; // Should contain backend OTP or message
 };
 
-export const sendOtp = async (email) => {
-  const response = await axiosInstance.post("/users/send-otp", { email });
-  console.log(email);
+export const sendOtp = async (email, mobile) => {
+  const response = await axiosInstance.post("/users/send-otp", { email, mobile });
   return response.data;
 };
 
-export const verifyOtp = async (email, otp) => {
-  const response = await axiosInstance.post("/users/verify-otp", { email, otp, });
+export const verifyOtp = async (email,mobile, otp) => {
+  const response = await axiosInstance.post("/users/verify-otp", { email,mobile, otp, });
   return response.data;
 };
 
@@ -90,4 +89,16 @@ export const updateProviderProfile = async (userData) => {
 export const submitReview = async (formData) => {
   const response = await axiosInstance.post("/reviews/submit", formData);
   return response.data;
+};
+export const getProviderProfile = async (formData) => {
+  
+};
+export const deleteAccount = async (formData) => {
+  
+};
+export const changePassword = async (formData) => {
+  
+};
+export const updateProfile = async (formData) => {
+  
 };

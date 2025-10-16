@@ -15,20 +15,24 @@ const VerifyOtp = () => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
-  const [timer, setTimer] = useState(30); // cooldown
+  const [timer, setTimer] = useState(30);
 
   const inputRefs = useRef([]);
-  const { data } = state || {};
 
-  if (!data) {
-    return (
-      <div className="text-center mt-10 text-red-600">
-        Invalid OTP session. Go back to Sign Up.
-      </div>
-    );
-  }
+  // Use state values safely
+  const email = state?.email || null;
+  const mobile = state?.mobile || null;
 
-  // Countdown timer for resend
+  // Redirect if invalid OTP session (run only once)
+  useEffect(() => {
+    if (!email && !mobile) {
+      Swal.fire("Error", "Invalid OTP session. Please Sign Up first.", "error");
+      navigate("/signup");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Countdown timer
   useEffect(() => {
     if (timer === 0) return;
     const interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
@@ -36,7 +40,7 @@ const VerifyOtp = () => {
   }, [timer]);
 
   const handleChange = (index, value) => {
-    if (!/^\d?$/.test(value)) return; // only digits
+    if (!/^\d?$/.test(value)) return;
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
@@ -45,6 +49,7 @@ const VerifyOtp = () => {
     if (!value && index > 0) inputRefs.current[index - 1]?.focus();
   };
 
+  // Verify OTP
   const handleVerify = async (e) => {
     e.preventDefault();
     const fullOtp = otp.join("");
@@ -52,23 +57,27 @@ const VerifyOtp = () => {
 
     setLoading(true);
     setError("");
-    try {
-      await verifyOtp(data.user.email, fullOtp);
 
-      // Store token
-      localStorage.setItem("token", data.token);
+    try {
+      const data = await verifyOtp( email, mobile, fullOtp);
+      const { token, user } = data;
+
+      if (!token) throw new Error("Verification failed");
+
+      localStorage.setItem("token", token);
       dispatch(
         loginUser({
-          name: data.user.name,
-          email: data.user.email,
-          role: data.user.role,
-          token: data.token,
+          name: user.name,
+          email: user.email || null,
+          mobile: user.mobile || null,
+          role: user.role,
+          token,
         })
       );
 
       await Swal.fire({
         icon: "success",
-        title: "Email Verified",
+        title: "Verified!",
         text: "Your account has been successfully verified.",
         timer: 2000,
         showConfirmButton: false,
@@ -76,23 +85,27 @@ const VerifyOtp = () => {
 
       navigate("/services");
     } catch (err) {
-      const msg = err.response?.data?.message || "OTP verification failed.";
+      const msg =
+        err.response?.data?.message || err.message || "OTP verification failed.";
       Swal.fire("Verification Failed", msg, "error");
     } finally {
       setLoading(false);
     }
   };
 
+  // Resend OTP
   const handleResendOtp = async () => {
     setResending(true);
     setError("");
     setMessage("");
+
     try {
-      await sendOtp(data.user.email);
-      setMessage("OTP has been resent to your email.");
+      await sendOtp( email, mobile );
+
+      setMessage("OTP has been resent!");
       setOtp(["", "", "", "", "", ""]);
       setTimer(30);
-      inputRefs.current[0].focus();
+      inputRefs.current[0]?.focus();
     } catch (err) {
       Swal.fire("Error", "Failed to resend OTP. Try again.", "error");
     } finally {

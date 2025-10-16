@@ -1,81 +1,158 @@
-import { useSelector } from "react-redux";
-import { BadgeCheck, ShieldCheck, Mail, User, UserCheck } from "lucide-react";
+import React, { useState } from "react";
+import { User, Camera } from "lucide-react";
 
-const Profile = () => {
-  const user = useSelector((state) => state.user.user);
+const ProfilePage = () => {
+  // Dummy profile data
+  const [profile, setProfile] = useState({
+    name: "Rushikesh Thange",
+    email: "rushikesh@example.com",
+    mobile: "9876543210",
+    address: "Pune, Maharashtra, India",
+    role: "User",
+  });
 
-  if (!user) {
-    return <p className="text-center mt-20 text-gray-500">No user logged in.</p>;
-  }
+  const [editField, setEditField] = useState(null);
+  const [tempData, setTempData] = useState({});
+
+  const handleEdit = (field) => {
+    setEditField(field);
+    setTempData({ ...profile });
+  };
+
+  const handleChange = (e) => {
+    setTempData({ ...tempData, [e.target.name]: e.target.value });
+  };
+
+  const handleSave = (field) => {
+    setProfile({ ...profile, [field]: tempData[field] });
+    setEditField(null);
+  };
 
   return (
-    <div className="min-h-[50vh] bg-gray-50 py-10 px-4">
-      <div className="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-md">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-            <User className="w-6 h-6 text-blue-600" />
-            Profile Details
-          </h2>
-          {user.isVerified && (
-            <span className="inline-flex items-center text-sm font-medium text-green-600 bg-green-100 px-3 py-1 rounded-full">
-              <ShieldCheck className="w-4 h-4 mr-1" />
-              Verified
-            </span>
-          )}
+    <div className="min-h-screen bg-gray-100 py-10 px-4 flex justify-center">
+      <div className="bg-white shadow-lg rounded-xl w-full max-w-2xl p-8">
+        {/* Header Section */}
+        <div className="flex items-center gap-6 mb-8">
+          <div className="relative">
+            <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-3xl font-bold">
+              {profile.name[0]}
+            </div>
+            <button className="absolute bottom-0 right-0 bg-white border rounded-full p-1 shadow hover:bg-gray-50">
+              <Camera className="w-4 h-4 text-gray-600" />
+            </button>
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold">{profile.name}</h2>
+            <p className="text-sm text-gray-500">Manage your account details</p>
+          </div>
         </div>
 
-        <div className="space-y-4">
-          <div className="flex items-center gap-3">
-            <UserCheck className="w-5 h-5 text-blue-500" />
-            <div>
-              <p className="text-sm text-gray-500">Name</p>
-              <p className="text-lg font-medium text-gray-800">{user.name}</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Mail className="w-5 h-5 text-blue-500" />
-            <div>
-              <p className="text-sm text-gray-500">Email</p>
-              <p className="text-lg font-medium text-gray-800">{user.email}</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <BadgeCheck className="w-5 h-5 text-blue-500" />
-            <div>
-              <p className="text-sm text-gray-500">Role</p>
-              <p className="text-lg font-medium text-gray-800 capitalize">{user.role}</p>
-            </div>
-          </div>
-
-          {user.googleId && (
-            <div className="flex items-center gap-3">
-              <img
-                src="https://cdn-icons-png.flaticon.com/512/281/281764.png"
-                alt="Google"
-                className="w-5 h-5"
-              />
-              <div>
-                <p className="text-sm text-gray-500">Google ID</p>
-                <p className="text-sm text-gray-700 break-all">{user.googleId}</p>
+        {/* Profile Sections */}
+        <div className="space-y-6">
+          {[
+            { label: "Full Name", field: "name" },
+            { label: "Email Address", field: "email" },
+            { label: "Mobile Number", field: "mobile" },
+            { label: "Address", field: "address" },
+            { label: "Role", field: "role" },
+            { label: "Password", field: "password" },
+          ].map((item) => (
+            <div
+              key={item.field}
+              className="border rounded-lg p-5 hover:shadow transition"
+            >
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="font-semibold text-lg">{item.label}</h3>
+                {editField !== item.field && (
+                  <button
+                    onClick={() => handleEdit(item.field)}
+                    className="text-blue-600 text-sm font-medium"
+                  >
+                    Edit
+                  </button>
+                )}
               </div>
-            </div>
-          )}
 
-          {user.address && (
-            <div className="flex items-center gap-3">
-              <MapPin className="w-5 h-5 text-blue-500" />
-              <div>
-                <p className="text-sm text-gray-500">Address</p>
-                <p className="text-lg font-medium text-gray-800">{user.address}</p>
-              </div>
+              {/* Field Render */}
+              {editField === item.field ? (
+                <div className="flex flex-col gap-3">
+                  {item.field === "password" ? (
+                    <>
+                      <input
+                        type="password"
+                        name="currentPassword"
+                        placeholder="Current Password"
+                        onChange={handleChange}
+                        className="border rounded-lg p-2 focus:ring focus:ring-blue-200"
+                      />
+                      <input
+                        type="password"
+                        name="newPassword"
+                        placeholder="New Password"
+                        onChange={handleChange}
+                        className="border rounded-lg p-2 focus:ring focus:ring-blue-200"
+                      />
+                      <input
+                        type="password"
+                        name="confirmPassword"
+                        placeholder="Confirm Password"
+                        onChange={handleChange}
+                        className="border rounded-lg p-2 focus:ring focus:ring-blue-200"
+                      />
+                    </>
+                  ) : item.field === "role" ? (
+                    <select
+                      name="role"
+                      value={tempData.role}
+                      onChange={handleChange}
+                      className="border rounded-lg p-2 focus:ring focus:ring-blue-200"
+                    >
+                      <option value="User">User</option>
+                      <option value="Provider">Provider</option>
+                    </select>
+                  ) : item.field === "address" ? (
+                    <textarea
+                      name="address"
+                      value={tempData.address}
+                      onChange={handleChange}
+                      className="border rounded-lg p-2 w-full focus:ring focus:ring-blue-200"
+                    />
+                  ) : (
+                    <input
+                      type="text"
+                      name={item.field}
+                      value={tempData[item.field]}
+                      onChange={handleChange}
+                      className="border rounded-lg p-2 w-full focus:ring focus:ring-blue-200"
+                    />
+                  )}
+
+                  <div className="flex gap-3 mt-2">
+                    <button
+                      onClick={() => handleSave(item.field)}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={() => setEditField(null)}
+                      className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : item.field === "password" ? (
+                <p className="text-gray-700">******** (hidden)</p>
+              ) : (
+                <p className="text-gray-700">{profile[item.field]}</p>
+              )}
             </div>
-          )}
+          ))}
         </div>
       </div>
     </div>
   );
 };
 
-export default Profile;
+export default ProfilePage;
