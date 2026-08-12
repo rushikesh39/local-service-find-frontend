@@ -5,7 +5,7 @@ import ServiceCard from "./ServiceCard";
 import { servicesList } from "../api/auth";
 import Skeleton from "react-loading-skeleton";
 import 'react-loading-skeleton/dist/skeleton.css';
-import { setServices } from "../redux/servicesSlice";
+import { setServices } from "../store/servicesSlice";
 
 const ServicesList = () => {
   const [loadingServices, setLoadingServices] = useState(true);

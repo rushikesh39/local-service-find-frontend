@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { loginUser } from "../redux/userSlice";
+import { loginUser } from "../store/userSlice";
 import Swal from "sweetalert2";
 
 const SocialAuthSuccess = () => {

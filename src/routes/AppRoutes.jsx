@@ -9,11 +9,9 @@ import SearchResults from "../pages/SearchResults";
 import ErrorPage from "../pages/ErrorPage";
 
 // Auth Pages
-import Login from "../pages/Login";
-import Signup from "../pages/Signup";
-import ForgotPassword from "../pages/ForgotPassword";
-import ResetPassword from "../pages/ResetPassword";
-import VerifyOtp from "../pages/VerifyOtp";
+import Login from "../features/auth/pages/Login";
+import Register from "../features/auth/pages/Register";
+import VerifyOtp from "../features/auth/pages/VerifyOtp";
 import SocialAuthSuccess from "../pages/SocialAuthSuccess";
 
 // User Pages
@@ -41,22 +39,20 @@ const AppRoutes = () => {
       <Route path="/about-us" element={<AboutUs />} />
       <Route path="/contact-us" element={<ContactUs />} />
       <Route path="/search-results" element={<SearchResults />} />
-      <Route path="*" element={<ErrorPage/>} />
+      <Route path="*" element={<ErrorPage />} />
 
       {/* Auth Routes */}
       <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
+      <Route path="/signup" element={<Register />} />
       <Route path="/verify-otp" element={<VerifyOtp />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/api/social-auth-success" element={<SocialAuthSuccess />} />
 
       {/* User Routes */}
       <Route path="/services" element={<ServiceList />} />
       <Route path="/service/:id" element={<ServiceDetail />} />
       <Route path="/book/:serviceId" element={<BookingModal />} />
-      <Route path="/my-bookings" element={<MyBookings />} />      
-       <Route path="/profile" element={<Profile/>} />
+      <Route path="/my-bookings" element={<MyBookings />} />
+      <Route path="/profile" element={<Profile />} />
 
       {/* Provider Dashboard - Protected Routes */}
       <Route
@@ -71,7 +67,7 @@ const AppRoutes = () => {
         <Route path="services" element={<Services />} />
         <Route path="services/add-new-service" element={<AddNewService />} />
         <Route path="bookings" element={<ProviderBookings />} />
-         <Route path="profile" element={<ProviderProfile />} />
+        <Route path="profile" element={<ProviderProfile />} />
         <Route path="*" element={<ProviderNotFound />} />
       </Route>
     </Routes>

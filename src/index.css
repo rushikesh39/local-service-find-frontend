@@ -1,1 +1,65 @@
 @import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-poppins: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+    --color-locafy-teal: #00897B;
+    --color-locafy-teal-hover: #00796B;
+    --color-locafy-teal-light: #E6F4F1;
+    --color-locafy-dark: #0F172A;
+    --color-locafy-gray: #64748B;
+  }
+
+  * {
+    font-family: var(--font-poppins), 'Poppins', sans-serif;
+  }
+
+  html, body {
+    font-family: var(--font-poppins), 'Poppins', sans-serif;
+    color: #0F172A;
+    background-color: #FFFFFF;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Custom Utilities for Locafy Theme */
+.bg-locafy-teal {
+  background-color: #00897B;
+}
+
+.bg-locafy-teal-hover:hover {
+  background-color: #00796B;
+}
+
+.bg-locafy-teal-light {
+  background-color: #E6F4F1;
+}
+
+.text-locafy-teal {
+  color: #00897B;
+}
+
+.text-locafy-dark {
+  color: #0F172A;
+}
+
+.border-locafy-teal {
+  border-color: #00897B;
+}
+
+/* Custom Scrollbar & Animations */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-down {
+  animation: fadeInDown 0.2s ease-out forwards;
+}

@@ -1,21 +1,21 @@
-import axiosInstance from "./axiosInstance";
+import axiosInstance from "../lib/axiosInstance";
 export const registerUser = async (userData) => {
-  const response = await axiosInstance.post("/users/register", userData);
+  const response = await axiosInstance.post("/auth/register", userData);
   return response.data; // Should contain backend OTP or message
 };
 
-export const sendOtp = async (email, mobile) => {
-  const response = await axiosInstance.post("/users/send-otp", { email, mobile });
+export const sendOtp = async (payload) => {
+  const response = await axiosInstance.post("/auth/send-otp", payload);
   return response.data;
 };
 
-export const verifyOtp = async (email,mobile, otp) => {
-  const response = await axiosInstance.post("/users/verify-otp", { email,mobile, otp, });
+export const verifyOtp = async (data) => {
+  const response = await axiosInstance.post("/auth/verify-otp", data);
   return response.data;
 };
 
 export const login = async (userData) => {
-  const response = await axiosInstance.post("/users/login", userData);
+  const response = await axiosInstance.post("/auth/login", userData);
   return response.data;
 };
 export const addNewServices = async (userData) => {
@@ -26,14 +26,14 @@ export const getServices = async (providerId) => {
   const response = await axiosInstance.get(`/services/provider/${providerId}`);
   return response.data;
 };
-export const searchServices = async (query,lat,lng) => {
+export const searchServices = async (query, lat, lng) => {
   const response = await axiosInstance.get(`/search`, {
-    params: {query,lat,lng},
+    params: { query, lat, lng },
   });
   return response.data;
 };
 export const updateStatus = async (serviceId) => {
-  const response = await axiosInstance.put(`/services/update-status/`,{serviceId});
+  const response = await axiosInstance.put(`/services/update-status/`, { serviceId });
   return response.data;
 };
 export const getServiceById = async (serviceId) => {
@@ -53,8 +53,8 @@ export const servicesList = async () => {
   return response.data;
 };
 
-export const createBooking = async ({serviceId, name, mobile, scheduledDate, address, notes,}) => {
-  const response = await axiosInstance.post(`booking/book`, {serviceId, name, mobile,scheduledDate,  address,notes});
+export const createBooking = async ({ serviceId, name, mobile, scheduledDate, address, notes, }) => {
+  const response = await axiosInstance.post(`booking/book`, { serviceId, name, mobile, scheduledDate, address, notes });
   return response.data;
 };
 export const getUserBooking = async () => {
@@ -63,7 +63,7 @@ export const getUserBooking = async () => {
 };
 
 export const updateBookingStatus = async (id, newStatus) => {
-  const response = await axiosInstance.patch(`booking/provider/update-booking-status/`,{id,newStatus});
+  const response = await axiosInstance.patch(`booking/provider/update-booking-status/`, { id, newStatus });
   return response.data;
 };
 export const dashboardStats = async () => {
@@ -91,14 +91,14 @@ export const submitReview = async (formData) => {
   return response.data;
 };
 export const getProviderProfile = async (formData) => {
-  
+
 };
 export const deleteAccount = async (formData) => {
-  
+
 };
 export const changePassword = async (formData) => {
-  
+
 };
 export const updateProfile = async (formData) => {
-  
+
 };
