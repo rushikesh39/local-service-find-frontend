@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { logoutUser } from "../../store/userSlice";
 import { ShoppingCart } from "lucide-react";
 
 // Subcomponents
@@ -12,13 +11,18 @@ import ProfileMenu from "./navbar/ProfileMenu";
 import MobileNavbar from "./navbar/MobileNavbar";
 
 const Navbar = () => {
+
+  const user = useSelector((state) => state);
+  console.log("User", user)
+
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Dropdown states
   const [isLocationOpen, setIsLocationOpen] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   // Selection states
   const [selectedLocation, setSelectedLocation] = useState("Select Location");
@@ -28,12 +32,11 @@ const Navbar = () => {
 
   const locationRef = useRef(null);
   const moreRef = useRef(null);
-  const profileRef = useRef(null);
 
-  const user = useSelector((state) => state.user?.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const profileRef = useRef(null);
   // Recent locations list matching design spec #7
   const recentSearches = [
     "Pune, Maharashtra",
@@ -41,6 +44,26 @@ const Navbar = () => {
     "Bangalore, Karnataka",
     "Hyderabad, Telangana",
   ];
+  const handleLogout = async () => {
+    try {
+      await logoutService()
+      setIsProfileOpen(false);
+      setIsMobileMenuOpen(false);
+      navigate("/login");
+    } catch (err) {
+      const errorMessage =
+        err.response?.data?.message;
+
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "error",
+        title: errorMessage,
+        showConfirmButton: false,
+        timer: 3000,
+      });
+    }
+  };
 
   // Handle outside click to close dropdowns
   useEffect(() => {
@@ -73,12 +96,7 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleLogout = () => {
-    dispatch(logoutUser());
-    setIsProfileOpen(false);
-    setIsMobileMenuOpen(false);
-    navigate("/login");
-  };
+
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -172,15 +190,7 @@ const Navbar = () => {
               setIsMoreOpen={setIsMoreOpen}
               moreRef={moreRef}
             />
-
-            {/* User Profile Menu */}
-            <ProfileMenu
-              user={user}
-              isProfileOpen={isProfileOpen}
-              setIsProfileOpen={setIsProfileOpen}
-              profileRef={profileRef}
-              handleLogout={handleLogout}
-            />
+            <ProfileMenu />
           </div>
         </div>
 

@@ -21,55 +21,116 @@ import BookingModal from "../pages/BookingModal";
 import MyBookings from "../pages/MyBookings";
 
 // Provider Dashboard
-import PrivateRoute from "../components/PrivateRoutes";
-import DashboardLayout from "../pages/provider/DashboardLayout";
-import ProviderDashboard from "../pages/provider/ProviderDashboard";
-import Services from "../pages/provider/Services";
-import AddNewService from "../pages/provider/AddNewService";
-import ProviderBookings from "../pages/provider/ProviderBookings";
-import ProviderNotFound from "../pages/provider/ProviderNotFound";
+// import PrivateRoute from "../components/PrivateRoutes";
+import DashboardLayout from "../features/dashboard/layout/DashboardLayout";
+import ProviderDashboard from "../features/dashboard/pages/ProviderDashboard";
 import Profile from "../pages/Profile";
-import ProviderProfile from "../pages/provider/ProviderProfile";
+
+import AdminLayout from "../features/dashboard/layout/DashboardLayout";
+import AdminDashboard from "../features/dashboard/pages/AdminDashboard";
+// import UsersManagement from "../features/dashboard/pages/UsersManagement";
+// import ProvidersManagement from "../features/dashboard/pages/ProvidersManagement";
+// import ServicesManagement from "../features/dashboard/pages/ServicesManagement";
+// import BookingsManagement from "../features/dashboard/pages/BookingsManagement";
+// import PaymentsManagement from "../features/dashboard/pages/PaymentsManagement";
+// import SettingsManagement from "../features/dashboard/pages/SettingsManagement";
+// import Unauthorized from "../pages/Unauthorized";
+
+
+import PermissionRoute from "@/components/comman/PermissionRoute";
+import PublicLayout from "@/components/layout/PublicLayout";
 
 const AppRoutes = () => {
   return (
     <Routes>
-      {/* Public Routes */}
-      <Route path="/" element={<Home />} />
-      <Route path="/about-us" element={<AboutUs />} />
-      <Route path="/contact-us" element={<ContactUs />} />
-      <Route path="/search-results" element={<SearchResults />} />
-      <Route path="*" element={<ErrorPage />} />
+      <Route element={<PublicLayout />}>
+        {/* Public Routes */}
+        <Route path="/" element={<Home />} />
+        <Route path="/about-us" element={<AboutUs />} />
+        <Route path="/contact-us" element={<ContactUs />} />
+        <Route path="/search-results" element={<SearchResults />} />
+        {/* <Route path="/unauthorized" element={<Unauthorized />} /> */}
 
-      {/* Auth Routes */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Register />} />
-      <Route path="/verify-otp" element={<VerifyOtp />} />
-      <Route path="/api/social-auth-success" element={<SocialAuthSuccess />} />
+        {/* Auth Routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/verify-otp" element={<VerifyOtp />} />
+        <Route path="/api/social-auth-success" element={<SocialAuthSuccess />} />
 
-      {/* User Routes */}
-      <Route path="/services" element={<ServiceList />} />
-      <Route path="/service/:id" element={<ServiceDetail />} />
-      <Route path="/book/:serviceId" element={<BookingModal />} />
-      <Route path="/my-bookings" element={<MyBookings />} />
-      <Route path="/profile" element={<Profile />} />
+        {/* User Routes */}
+        <Route path="/services" element={<ServiceList />} />
+        <Route path="/service/:id" element={<ServiceDetail />} />
+        <Route path="/book/:serviceId" element={<BookingModal />} />
+        <Route path="/my-bookings" element={<MyBookings />} />
+        <Route path="/profile" element={<Profile />} />
+      </Route>
 
-      {/* Provider Dashboard - Protected Routes */}
+
+
+      {/* RBAC Routes */}
+
+      {/* <Route
+        path="/super-admin"
+        element={
+          <PermissionRoute permission="super_admin:dashboard">
+            <DashboardLayout />
+          </PermissionRoute>
+        }
+      >
+        <Route index element={<SuperAdminDashboard />} />
+
+        <Route
+          path="users"
+          element={
+            <PermissionRoute permission="users:read">
+              <UsersList />
+            </PermissionRoute>
+          }
+        />
+      </Route> */}
+
+      <Route
+
+        path="/admin"
+        element={
+          <PermissionRoute permission="dashboard:admin">
+            <DashboardLayout />
+          </PermissionRoute>
+        }
+      >
+        <Route index element={<AdminDashboard />} />
+
+        <Route
+          path="users"
+          element={
+            <PermissionRoute permission="users:read">
+              {/* <UsersList /> */}
+            </PermissionRoute>
+          }
+        />
+      </Route>
       <Route
         path="/provider"
         element={
-          <PrivateRoute>
+          <PermissionRoute permission="dashboard:provider">
             <DashboardLayout />
-          </PrivateRoute>
+          </PermissionRoute>
         }
       >
         <Route index element={<ProviderDashboard />} />
-        <Route path="services" element={<Services />} />
-        <Route path="services/add-new-service" element={<AddNewService />} />
-        <Route path="bookings" element={<ProviderBookings />} />
-        <Route path="profile" element={<ProviderProfile />} />
-        <Route path="*" element={<ProviderNotFound />} />
+
+        <Route
+          path="dashboard"
+          element={
+            <PermissionRoute permission="users:read">
+              {/* <UsersList /> */}
+            </PermissionRoute>
+          }
+        />
       </Route>
+
+      {/* 404 Catch All */}
+      <Route path="*" element={<ErrorPage />} />
     </Routes>
   );
 };

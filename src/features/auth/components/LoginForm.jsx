@@ -38,7 +38,7 @@ function LoginForm() {
     const [countryCode, setCountryCode] = useState("+91");
     const [loginMode, setLoginMode] = useState("mobile"); // "mobile" | "email"
 
-    const { register, handleSubmit, setError, formState } = useForm({ resolver: zodResolver(loginSchema) })
+    const { register, handleSubmit, setError, reset, formState } = useForm({ resolver: zodResolver(loginSchema) })
     const { errors, isSubmitting } = formState;
 
     const handleModeChange = (mode) => {
@@ -61,7 +61,7 @@ function LoginForm() {
                     showConfirmButton: false,
                     timer: 2000,
                 });
-                navigate("/verify-otp", { state: { ...data } });
+                navigate("/verify-otp", { state: { ...data, purpose: "login" } });
             }
         } catch (err) {
             const errors = err.response?.data?.errors;
@@ -155,6 +155,7 @@ function LoginForm() {
                         >
                             {isSubmitting ? "Sending OTP..." : "Continue"}
                         </Button>
+                        <p className="text-xs sm:text-sm text-slate-500 font-medium mt-3 text-center">Don't have an account? <Link to="/register" className="text-[#00897B] cursor-pointer">Register</Link></p>
                     </form>
                 </Tabs>
                 {/* Divider OR */}

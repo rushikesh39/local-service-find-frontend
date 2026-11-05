@@ -20,3 +20,11 @@ export const loginApi = async (payload) => {
     const response = await axiosInstance.post("/auth/login", payload);
     return response.data;
 };
+export const logoutApi = async () => {
+    const response = await axiosInstance.post("/auth/logout");
+    return response.data;
+};
+export const getUserDetailsApi = async () => {
+    const response = await axiosInstance.get("user/get-user-details");
+    return response.data;
+};

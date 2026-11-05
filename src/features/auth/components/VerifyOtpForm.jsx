@@ -1,12 +1,13 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { loginUser } from "../../../store/userSlice";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import verifyOtpSchema from "../schemas/verifyOtpSchema";
 import verifyOtpService from "../services/verifyOtpService";
 import sendOtpService from "../services/sendOtpService";
+import getUserDetailsService from "../services/getUserDetails";
+import { setUser } from "../../../store/userSlice";
 import Swal from "sweetalert2";
 import {
     ChevronLeft,
@@ -38,10 +39,21 @@ function VerifyOtpForm() {
 
     const email = state?.email || null;
     const mobile = state?.mobile || null;
+    const purpose = state?.purpose || null;
 
     const { control, handleSubmit, setError, setValue, formState } = useForm({
-        resolver: zodResolver(verifyOtpSchema)
+        resolver: zodResolver(verifyOtpSchema),
+        defaultValues: {
+            email: email || "",
+            mobile: mobile || "",
+            otp: "",
+            purpose: purpose || "login"
+        }
     });
+
+    const onError = (errors) => {
+        console.log("VerifyOtpForm Validation Errors:", errors);
+    };
 
     const { errors, isSubmitting } = formState;
 
@@ -50,7 +62,7 @@ function VerifyOtpForm() {
             Swal.fire({
                 icon: "error",
                 title: "Error",
-                text: "Invalid OTP session. Please Sign Up first.",
+                text: "Invalid OTP session. Please Register first.",
             });
             navigate("/register");
         }
@@ -65,8 +77,10 @@ function VerifyOtpForm() {
 
     // Verify OTP
     const onSubmit = async (data) => {
+
+        console.log("onsubmit")
         try {
-            const res = await verifyOtpService(data);
+            const res = await verifyOtpService(state, data);
             if (res.success) {
                 localStorage.removeItem("otpExpiry");
 
@@ -77,6 +91,8 @@ function VerifyOtpForm() {
                     timer: 2000,
                     showConfirmButton: false,
                 });
+                const userDetails = await getUserDetailsService();
+                dispatch(setUser(userDetails.data));
                 navigate("/");
             }
         } catch (err) {
@@ -107,8 +123,7 @@ function VerifyOtpForm() {
         setMessage("");
 
         try {
-            const payload = email ? { email } : { mobile };
-            await sendOtpService(payload);
+            await sendOtpService(state);
             setMessage("OTP has been resent!");
             setValue("otp", "");
 
@@ -178,7 +193,7 @@ function VerifyOtpForm() {
                 </div>
 
                 {/* Form */}
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-6">
                     {message && <p className="text-[#00897B] text-xs font-medium">{message}</p>}
 
                     {/* OTP Digits input using Shadcn InputOTP */}
@@ -205,7 +220,7 @@ function VerifyOtpForm() {
                                 </InputOTP>
                             )}
                         />
-                        {errors.otp && <FieldError className="text-red-500">{errors.otp.message}</FieldError>}
+                        {errors.otp && <FieldError className="text-red-500 text-center">{errors.otp.message}</FieldError>}
                     </Field>
 
                     {/* Resend Code Info */}

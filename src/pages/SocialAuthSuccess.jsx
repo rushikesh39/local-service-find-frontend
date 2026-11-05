@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { loginUser } from "../store/userSlice";
+import { setUser } from "../store/userSlice";
 import Swal from "sweetalert2";
 
 const SocialAuthSuccess = () => {
@@ -18,7 +18,7 @@ const SocialAuthSuccess = () => {
     const role = params.get("role");
 
     if (token && email) {
-      dispatch(loginUser({ name, email, token, role }));
+      dispatch(setUser({ name, email, token, role }));
       localStorage.setItem("token", token);
 
       Swal.fire({

@@ -1,23 +1,5 @@
 import axiosInstance from "../lib/axiosInstance";
-export const registerUser = async (userData) => {
-  const response = await axiosInstance.post("/auth/register", userData);
-  return response.data; // Should contain backend OTP or message
-};
 
-export const sendOtp = async (payload) => {
-  const response = await axiosInstance.post("/auth/send-otp", payload);
-  return response.data;
-};
-
-export const verifyOtp = async (data) => {
-  const response = await axiosInstance.post("/auth/verify-otp", data);
-  return response.data;
-};
-
-export const login = async (userData) => {
-  const response = await axiosInstance.post("/auth/login", userData);
-  return response.data;
-};
 export const addNewServices = async (userData) => {
   const response = await axiosInstance.post("/services/add", userData);
   return response.data;

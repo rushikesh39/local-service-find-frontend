@@ -60,7 +60,7 @@ function RegisterForm() {
                 });
 
                 navigate("/verify-otp", {
-                    state: { ...data },
+                    state: { ...data, purpose: "register" },
                 });
             }
         } catch (err) {
@@ -176,6 +176,7 @@ function RegisterForm() {
                         >
                             {isSubmitting ? "Sending OTP..." : "Continue"}
                         </Button>
+                        <p className="text-xs sm:text-sm text-slate-500 font-medium mt-3 text-center">Already have an account? <Link to="/login" className="text-[#00897B] cursor-pointer">Login</Link></p>
                     </form>
                 </Tabs>
 
